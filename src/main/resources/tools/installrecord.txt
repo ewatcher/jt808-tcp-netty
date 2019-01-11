@@ -1,0 +1,694 @@
+	
+==============change root pwd====
+ sudo passwd root
+
+ 软件源和软件更新到最新
+     sudo apt-get update&sudo apt-get upgrade   
+ 修复桌面不显示： 
+ sudo rm -rf /home/nongfeng/.cache-NOGOOD/.cache/&mv ~/.cache ~/.cache-NOGOOD
+
+
+==============1.JDK========================
+1.tar -zxvf jdk包
+2.sudo mv jdk1.8.0_101 /usr/lib/javaVM/
+3.gedit ~/.bashrc
+	export JAVA_HOME=/usr/lib/javaVM/jdk1.8.0_101/  /home/nongfeng/javaVM/jdk1.8.0_101/
+	export JRE_HOME=${JAVA_HOME}/jre
+	export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+	export PATH=${JAVA_HOME}/bin:$PATH
+4.source ~/.bashrc
+5.check:env or java -version
+
+
+============2. tomcat8  http://www.linuxidc.com/Linux/2017-01/139248.htm  ============================
+1.download: http://tomcat.apache.org/download-80.cgi
+2.tar zxvf parkage
+3.查看所有进程 ps -ef 
+	筛选出带java的进程:ps -ef | grep java
+
+
+=========== 3. myeclipse ===================
+1.chmod +x myeclipse.run
+	./myeclipse.run
+2.java -jar key.jar
+
+3.输入命令sudo gedit /usr/share/applications/myeclipse2017.desktop
+
+4.copy
+[Desktop Entry]
+Encoding=UTF-8
+Name=myeclipse
+Comment=MyEclipse IDE
+Exec=/home/nongfeng/myeclipse2017
+Icon=/home/nongfeng/myeclipse2017/icon.xpm
+Terminal=false 
+StartupNotify=true
+Type=Application
+Categories=Application;Development;  
+
+5.sudo chmod -R 777 myeclipse2015
+
+svn plugins:
+http://subclipse.tigris.org/update_1.8.x
+
+
+============= 4. maven ====================
+1.download http://maven.apache.org/download.cgi
+
+2.tar zxvf ****.gz	
+
+3.sudo gedit ~/.bashrc
+
+4.gedit ~/.bashrc
+export JAVA_HOME=/usr/lib/javaVM/jdk1.8.0_101
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+export PATH=${JAVA_HOME}/bin:$PATH
+
+export MAVEN_HOME=/home/nongfeng/maven/apache-maven-3.3.9
+export PATH=${MAVEN_HOME}/bin:$PATH
+
+5.source ~/.bashrc
+6.mvn -version
+
+ 
+============= 5.  mysql =========================
+1.sudo apt-get install mysql-server
+
+2.sudo apt-get install mysql-client
+
+3.sudo apt-get install libmysqlclient-dev
+
+4.检查是否安装成功:sudo netstat -tap | grep mysql
+
+5.登陆:mysql -u root -p
+6.	sudo apt-get update
+	sudo apt-get install mysql-workbench
+
+
+7.终端输入：mysql-workbench 
+＝＝＝＝＝＝＝＝＝＝＝6. 五笔 ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+http://jingyan.baidu.com/article/4b07be3c60da3f48b380f3f0.html
+
+1.sudo apt-get install fcitx-table-wbpy
+2.配置fcitx
+3.reboot
+
+
+
+================7. FileZilla install====================================
+1.sudo apt-get install filezilla
+
+
+==============8.install svn===========================================
+第一章 安装
+
+1. 采用源文件编译安装。源文件共两个，为：
+subversion-1.6.1.tar.gz （subversion 源文件）
+subversion-deps-1.6.1.tar.gz （subversion依赖文件）
+注意文件版本必须一致,否则很容易产生各种奇怪的问题.
+
+2. 上传以上两个文件到服务器上，解压。解压命令为：
+1 	tar xfvz subversion-1.6.1.tar.gz 
+2 	tar xfvz subversion-deps-1.6.1.tar.gz
+
+指令简介：tar 为解压命令，xfvz为tar命令的参数，用于解压tar.gz格式压缩的文件。
+ 
+3. 解压后生成 subversion-1.6.1 子目录，两个压缩包解压后都会自动放到此目录下，不用手动更改。
+
+4. 进入解压子目录：
+1 	cd subversion-1.6.1
+
+5. 执行 ./configure –prefix=/opt/subversion 进行配置设定并指明安装目录. 注意prefix前是两个减号. 默认不带BDB包, 所以默认使用的是FSFS模式. 若想使用BDB模式需另外下载BDB包.建议使用FSFS模式.两种模式比较参考以下链接:
+
+http://doc.iusesvn.com/show-21-1.html
+
+指令简介：configure命令用于检查安装平台和目标特征，prefix用于指定路径。
+
+6. 执行 make 编译.
+
+7. 执行 make install 安装.
+
+8. 添加环境变量:
+1 	vi /etc/profile
+
+在文件最后加入:
+SVNPATH=$PATH:/opt/subversion/bin
+export SVNPATH
+
+9. 测试SVN是否安装成功,执行:
+1 	svnserve --version
+
+如果显示版本信息, 则安装成功.
+
+第二章 配置
+
+本系统采用为每个项目单独建一版本库的策略。配置文件，密码文件，访问控制文件等都放在版本库的conf目录下。所以每次开始一个新项目都必须新建一个版本库，并重新配置各配置文件。还有很重要的一条，要求各组员重新配置客户端，包括服务器版本库路径，本地路径等信息。
+
+1. 建立版本库目录(可建立多个，新建库后以下各项都需重新配置。注意区别安装目录与版本库目录,以下讲的都是版本库目录)
+1 	mkdir –p /opt/svndata/repos
+
+2. 建立svn版本库(与上面目录对应)
+1 	svnadmin create /opt/svndata/repos
+
+执行此命令后svn自动在repos目录下添加必须的配置文件.
+注意:版本库不同于一般的文件夹, 直接在操作系统上新建文件无法被SVN识别, 必须使用import等命令将文件导入版本库.
+此为svn内部指令，create用于新建版本库。请使用svn help查看详细说明。
+
+3. 修改版本库配置文件
+1 	vi /opt/svndata/repos/conf/svnserve.conf
+
+各参数功能在配置文件的注释中有说明, 此处配置如下:
+[general]
+anon-access = none # 使非授权用户无法访问
+auth-access = write # 使授权用户有写权限
+password-db = /opt/svndata/repos/conf/pwd.conf # 指明密码文件路径
+authz-db = /opt/svndata/repos/conf/authz.conf # 访问控制文件
+realm = /opt/svndata/repos # 认证命名空间，subversion会在认证提示里显示，并且作为凭证缓存的关键字。
+其它采用默认配置. 各语句都必须顶格写, 左侧不能留空格, 否则会出错.
+其中pwd.conf 与 authz.conf 在新建版本库时系统不会自动创建，需要自己创建。
+指令简介：这是svn配置文件的格式，请按照以上格式书写。
+
+4. 配置用户
+1 	vi /opt/svndata/repos/conf/pwd.conf
+
+输入以下内容：
+[users]
+username1 = password1
+username2 = password2
+可以添加多个，此为用户名密码对。
+
+5. 配置权限
+vi /opt/svndata/repos/conf/authz.conf
+指令简介：此配置文件采用“基于路径的授权”策略，中括号里指定路径，以下列出对各用户的授权。包括只读r，读写rw。没有列出的用户，则不允许访问。还可以对用户分组，具体请参考svn手册，以下是简单例子：
+[/opt/svndata/repos]
+user1 = rw
+user2 = r
+
+6. 使用import导入文件
+新建好的版本库是空的，需要导入工作目录。
+1 	$ svnadmin create /usr/local/svn/newrepos 
+2 	$ svnimport mytree file:///usr/local/svn/newrepos/some/project
+
+但是在导入后,用来的目录树并没有转换成工作拷贝，为了开始工作，还是需要运行svn checkout导出一个工作拷贝。因为导入后，文件在版本库中是以特殊的形式存在db文件夹中的，不能以明文的方式查看。必须使用svn checkout导出工作副本（workcopy）才能以正常方式查看。
+1 	svn checkout file:///usr/local/svn/newrepos/some/project workcopy
+
+7. 启动服务
+执行svnserve –d –r /opt/svndata/repos/ 启动服务, 以deamon方式运行。
+本系统采用svnserve方式, 这是小团队项目的推荐方法. 这种方法维护最少, 配置最简单.
+指令简介：此指令用于启动svn服务，-d指明以守护模式运行，svn自动在3690端口监听。3690是默认端口，可以使用“–listen-port=”或者“–listen-host=”来指定其它端口。-r选项用来指定svn服务的根目录，这样用户就可以使用相对路径访问，而不用提供完整路径。
+使用以下命令检出：(svnserver方式)
+1 	svn checkout svn://127.0.0.1/dir
+
+以上为示例。IP需要根据具体情况调整，dir为版本库路径，若在启动时已指定则可省略。
+版本库信息在版本库文件夹里，所以要删除版本库只需要删除版本库所在的文件夹即可。
+另外工作副本只是自己维护的文件夹，可以用Windows直接删掉，对别人没有影响。千万不要使用版本库的删除命令，否则版本库里的内容也会被删除。 
+
+============9.安装firefox and firefox flash 插件====================
+
+1.sudo apt-get update
+2.sudo apt-get install firefox
+
+1.sudo apt-get update&sudo apt-get install flashplugin-installer
+2.sudo apt-get install flashplugin-installer
+
+
+=============10. Android Studio ==========================
+	1. sudo apt-add-repository ppa:paolorotolo/android-studio
+	2. sudo apt-get update
+	3. sudo apt-get install android-studio
+如果要把Android Studio添加到启动栏，你需要如下操作
+
+打开Android Studio，点击Configure选择Create Desktop Entry，这样Android Studio应该在dash中创建快捷方式了
+
+1. sudo add-apt-repository ppa:webupd8team/java
+2. sudo apt-get update
+3. sudo apt-get install java-common oracle-java8-installer
+4. sudo apt-get install oracle-java8-set-default
+5. source /etc/profile
+
+
+
+============11. rar ========================================
+	wget http://soft.itbulu.com/php/rarlinux-x64-5.4.b2.tar.gz
+	tar -zxvf rarlinux-x64-5.4.b2.tar.gz
+	cd rar
+	make
+	make install
+	
+	使用：1、解压文件 rar x itbulu.com.rar （红色部分代表我们压缩包需要解压的文件名—）。
+
+2、压缩文件
+
+rar a itbulu.com.rar file
+将file文件夹压缩到itbulu.com.rar压缩包。
+
+==========12 截图软件===============================
+ 截图软件： sudo apt-get install Shutter
+
+==========13 QQ2017 install  ====================================
+
+ 1：sudo add-apt-repository ppa:wine/wine-builds
+2：sudo apt-get update
+3：sudo apt-get install winehq-devel
+4： 百度云链接: https://pan.baidu.com/s/1bpest7D  密码: qtg9
+5：tar xvf wineQQ8.9_19990.tar.xz -C ~/
+
+==========14安装Mac OS主题====================
+1.主题与图标
+sudo add-apt-repository ppa:noobslab/macbuntu
+sudo apt-get update
+sudo apt-get install macbuntu-os-icons-lts-v7
+sudo apt-get install macbuntu-os-ithemes-lts-v7
+
+2.安装unity-tweak-tool
+sudo apt-get install unity-tweak-tool
+
+3.安装Docky
+sudo apt-get install docky
+这里docky安装完毕后，没办法直接添加程序到docky栏中，需要将程序打开，然后在docky中固定图标即可。
+
+4.安装Slingscold
+sudo apt-get install slingscold
+
+5.启动器图标更改
+wget -O launcher_bfb.png http://www.linuxidc.com/files/2017/03/launcher_bfb.png
+sudo mv launcher_bfb.png /usr/share/unity/icons/
+试了试没有成功，需要自己将图标下载下来，然后修改权限，将图标转移到/usr/share/unity/icons/
+
+=============15 迅雷极速版====================
+http://www.jb51.net/article/95316.htm
+一、环境配置
+sudo add-apt-repository ppa:ubuntu-wine/ppa
+sudo apt-get update
+sudo apt-get install wine
+
+二、安装运行迅雷
+
+wine 程序名
+可以通过如下命令更改配置
+
+winecfg
+
+================16 linux下安装微信小程序开发工具======================
+一.环境::
+
+ubuntu 16.04
+
+二.安装过程:
+
+2.1 安装wine
+
+sudo apt-get install wine
+
+2.2 安装nwjs-sdk
+
+2.2.1 下载linux版nwjs-sdk
+
+wget https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-linux-x64.tar.gz 
+
+2.2.2 解压nwjs-sdk
+
+tar xvf  nwjs-sdk-v0.25.4-linux-x64.tar.gz
+
+2.2.3 切换到nwjs-sdk对应的目录
+
+cd nwjs-sdk-v0.25.4-linux-x64
+
+2.2.3 启动nwjs-sdk
+
+
+===============17  wechat================
+1.sudo apt-get install ktorrent
+2.sudo apt-get install amule
+
+
+
+./nw  (测试是否能正常运行,测试正常就关掉)
+
+2.3 安装微信开发工具包(基于nwjs-sdk)
+
+2.3.1 获取微信开发工具包
+
+git clone https://github.com/cytle/wechat_web_devtools.git
+
+2.3.2 切换到wechat_web_devtools目录
+
+cd wechat_web_devtools
+
+2.3.3 复制微信开发工具包（package.nw在wechat_web_devtools目录下）到nwjs-sdk目录下
+
+cp package.nw ~/development/nwjs-sdk-v0.25.4-linux-x64/ -rf  
+
+
+2.3.4 启动
+
+./nw
+
+
+======================18 WPS==============
+Linux下彻底卸载LibreOffice方法:
+sudo apt-get purge libreoffice?
+
+1.dowload: http://community.wps.cn/download/
+
+2.sudo dpkg -i wp....deb
+
+
+=====================19 主题安装===========
+1.以下命令安装Flatabulous主题：
+
+sudo add-apt-repository ppa:noobslab/themes
+sudo apt-get update
+sudo apt-get install flatabulous-theme
+
+2.该主题有配套的图标，安装方式如下：
+
+sudo add-apt-repository ppa:noobslab/icons
+sudo apt-get update
+sudo apt-get install ultra-flat-icons
+
+3.安装完成后，打开unity-tweak-tool软件，修改主题和图标
+
+=====================20 notepadqq====================
+sudo add-apt-repository ppa:notepadqq-team/notepadqq
+
+sudo apt-get update
+
+sudo apt-get install notepadqq
+
+=====================21 Pinta 图形编辑软件====================
+sudo add-apt-repository ppa:pinta-maintainers/pinta-stable
+sudo apt-get update
+sudo apt-get install pinta
+
+=====================22 查看自己的外网IP ====================
+1.1 安装使用curl命令实现
+      sudo apt-get install curl
+1.2 输入命令
+      curl ifconfig.me
+
+=====================23 Ubuntu配置和修改IP地址====================
+1、修改配置文件/etc/network/interfaces
+root@ubuntu:~# sudo gedit /etc/network/interfaces
+添加以下内容：
+auto eth0                  #设置自动启动eth0接口
+iface eth0 inet static     #配置静态IP
+address 192.168.11.88      #IP地址
+netmask 255.255.255.0      #子网掩码
+gateway 192.168.11.1        #默认网关
+
+2、修改DNS
+sudo gedit /etc/resolve.conf
+nameserver 8.8.8.8 #当地dns服务器(用ipconfig /all 查看本地dns，第一个dns是默认的，共有2个dns)
+
+
+在这里修改的dns重启电脑后就消失了，要想永久有效需要进行下面的配置：
+
+
+sudo vi /etc/resolvconf/resolv.conf.d/base 
+
+在打开的文件中添加
+
+nameserver 202.103.224.68
+ nameserver 202.103.225.68
+
+
+注：#后面的注释信息不要加进去。
+
+3、重启网络，使配置生效
+sudo /etc/init.d/networking restart
+
+4、查看ip是否配置成功 root@ubuntu:~# ifconfig
+=====================24 Apache====================
+$ sudo apt-get install apache2
+安装完成后，重启apache服务:sudo /etc/init.d/apache2 restart
+
+可能会出现的问题1： NameVirtualHost *:80 has no VirtualHosts，
+出现上述问题的原因：定义了多个NameVirtualHost，故将/etc/apache2/ports.conf中的NameVirtualHost *:80注释掉即可。
+
+可能会出现的问题2： Could not reliably determine the server's fully qualified domain name, using 127.0.1.1 for ServerName
+原因：
+	根据提示，无法可靠的确定服务器的有效域名，使用127.0.1.1作为服务器域名。应此，在下面的测试中，应该使用127.0.1.1，而不是127.0.0.1！
+
+解决：
+$ vim /etc/apache2/httpd.conf，在文件中添加：
+ServerName localhost:80，再次重启apache2，就可以使用127.0.0.1来访问web服务器啦！
+测试：
+在浏览器里输入http://localhost或者是http://127.0.0.1，如果看到了It works!，那就说明Apache就成功的安装了，Apache的默认安装，会在/var下建立一个名为www的目录，这个就是Web目录了，所有要能过浏览器访问的Web文件都要放到这个目录里。
+测试过程中可能遇到问题:
+原因：apache2使用的服务器地址不是127.0.0.1，根据在前面的分析，可能的ip为127.0.1.1，访问http：//127.0.1.1即可。
+
+如果觉得不再需要apache了，可以将它卸载：
+1. 删除apache
+在命令行中输入:
+$ sudo apt-get --purge remove apache-common
+$ sudo apt-get --purge remove apache
+2.找到没有删除掉的配置文件，一并删除
+代码:
+$ sudo find /etc -name "*apache*" |xargs rm -rf 
+$ sudo rm -rf /var/www
+$sudo rm -rf /etc/libapache2-mod-jk
+3.删除关联，这样就可以再次用apt-get install apache2 重装了
+#dpkg -l |grep apache2|awk '{print $2}'|xargs dpkg -P
+
+=====================25 常用命令====================
+	查询公网IP：curl ip.cip.cc
+	
+=====================26 deepin-screeshot 2.0 ====================
+1、在安装deepin-screeshot 2.0之前需要解决一下软件依赖关系。在终端输入如下命令：
+
+sudo apt-get install python-xlib
+sudo apt-get install python-webkit
+sudo apt-get install python-wnck
+
+2、下载deepin-ui_1+git201211141021_i386.deb和deepin-screenshot_2.0+git201210081328_all.deb。
+注：如果链接失效，在浏览器中输入http://packages.linuxdeepin.com/deepin/pool/main/d/，查找deepin-ui和deepin-screenshot目录并打开，在相应的目录中下载最新出的相应deb包。
+
+3、切换到下载目录，执行如下语句。（注意，首先得安装deepin-ui_1+git201211141021_i386.deb）因为deepin-screenshot_2.0+git201210081328_all.deb依赖它）
+
+sudo dpkg -i deepin-ui_1+git201211141021_i386.deb
+sudo dpkg -i deepin-screenshot_2.0+git201210081328_all.deb 
+
+4、配置快捷方式。选择System Setting（系统设置）-> Keyboard（键盘）-> ShortCuts（快捷键），点击底下的"+"，在Name（名字）一栏输入名字，如：sreenshot。在Command（命令）一栏输入deepin-screenshot。然后选中sreenshot，按下Ctrl+Alt+A，即可将Ctrl+Alt+A设定为截屏的快捷键。
+
+=====================27 安装IntelliJ IDEA并破解 ====================
+1.下载Intellij idea安装包:https://www.jetbrains.com/idea/download/#section=linux
+2.解压下载的文件 sudo tar -xf ideaIU-2017.3.4-no-jdk.tar.gz
+3.移动文件至/opt/: sudo mv idea-IU-173.4548.28 /opt
+4.进入/bin目录下启动即可 
+cd /opt/idea-IU-173.4548.28/bin
+./idea.sh
+
+5.破解 参考http://idea.lanyus.com/
+打开配置文件hosts:sudo gedit /etc/hosts
+6.将以下内容添加到文件中: 0.0.0.0 account.jetbrains.com
+获取上述链接中的注册码，添加即可 EB101IWSWD-eyJsaWNlbnNlSWQiOiJFQjEwMUlXU1dEIiwibGljZW5zZWVOYW1lIjoibGFuIHl1IiwiYXNzaWduZWVOYW1lIjoiIiwiYXNzaWduZWVFbWFpbCI6IiIsImxpY2Vuc2VSZXN0cmljdGlvbiI6IkZvciBlZHVjYXRpb25hbCB1c2Ugb25seSIsImNoZWNrQ29uY3VycmVudFVzZSI6ZmFsc2UsInByb2R1Y3RzIjpbeyJjb2RlIjoiSUkiLCJwYWlkVXBUbyI6IjIwMTgtMTAtMTQifSx7ImNvZGUiOiJSUzAiLCJwYWlkVXBUbyI6IjIwMTgtMTAtMTQifSx7ImNvZGUiOiJXUyIsInBhaWRVcFRvIjoiMjAxOC0xMC0xNCJ9LHsiY29kZSI6IlJEIiwicGFpZFVwVG8iOiIyMDE4LTEwLTE0In0seyJjb2RlIjoiUkMiLCJwYWlkVXBUbyI6IjIwMTgtMTAtMTQifSx7ImNvZGUiOiJEQyIsInBhaWRVcFRvIjoiMjAxOC0xMC0xNCJ9LHsiY29kZSI6IkRCIiwicGFpZFVwVG8iOiIyMDE4LTEwLTE0In0seyJjb2RlIjoiUk0iLCJwYWlkVXBUbyI6IjIwMTgtMTAtMTQifSx7ImNvZGUiOiJETSIsInBhaWRVcFRvIjoiMjAxOC0xMC0xNCJ9LHsiY29kZSI6IkFDIiwicGFpZFVwVG8iOiIyMDE4LTEwLTE0In0seyJjb2RlIjoiRFBOIiwicGFpZFVwVG8iOiIyMDE4LTEwLTE0In0seyJjb2RlIjoiUFMiLCJwYWlkVXBUbyI6IjIwMTgtMTAtMTQifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjAxOC0xMC0xNCJ9LHsiY29kZSI6IlBDIiwicGFpZFVwVG8iOiIyMDE4LTEwLTE0In0seyJjb2RlIjoiUlNVIiwicGFpZFVwVG8iOiIyMDE4LTEwLTE0In1dLCJoYXNoIjoiNjk0NDAzMi8wIiwiZ3JhY2VQZXJpb2REYXlzIjowLCJhdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlLCJpc0F1dG9Qcm9sb25nYXRlZCI6ZmFsc2V9-Gbb7jeR8JWOVxdUFaXfJzVU/O7c7xHQyaidCnhYLp7v32zdeXiHUU7vlrrm5y9ZX0lmQk3plCCsW+phrC9gGAPd6WDKhkal10qVNg0larCR2tQ3u8jfv1t2JAvWrMOJfFG9kKsJuw1P4TozZ/E7Qvj1cupf/rldhoOmaXMyABxNN1af1RV3bVhe4FFZe0p7xlIJF/ctZkFK62HYmh8V3AyhUNTzrvK2k+t/tlDJz2LnW7nYttBLHld8LabPlEEjpTHswhzlthzhVqALIgvF0uNbIJ5Uwpb7NqR4U/2ob0Z+FIcRpFUIAHEAw+RLGwkCge5DyZKfx+RoRJ/In4q/UpA==-MIIEPjCCAiagAwIBAgIBBTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE1MTEwMjA4MjE0OFoXDTE4MTEwMTA4MjE0OFowETEPMA0GA1UEAwwGcHJvZDN5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxcQkq+zdxlR2mmRYBPzGbUNdMN6OaXiXzxIWtMEkrJMO/5oUfQJbLLuMSMK0QHFmaI37WShyxZcfRCidwXjot4zmNBKnlyHodDij/78TmVqFl8nOeD5+07B8VEaIu7c3E1N+e1doC6wht4I4+IEmtsPAdoaj5WCQVQbrI8KeT8M9VcBIWX7fD0fhexfg3ZRt0xqwMcXGNp3DdJHiO0rCdU+Itv7EmtnSVq9jBG1usMSFvMowR25mju2JcPFp1+I4ZI+FqgR8gyG8oiNDyNEoAbsR3lOpI7grUYSvkB/xVy/VoklPCK2h0f0GJxFjnye8NT1PAywoyl7RmiAVRE/EKwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQC9WZuYgQedSuOc5TOUSrRigMw4/+wuC5EtZBfvdl4HT/8vzMW/oUlIP4YCvA0XKyBaCJ2iX+ZCDKoPfiYXiaSiH+HxAPV6J79vvouxKrWg2XV6ShFtPLP+0gPdGq3x9R3+kJbmAm8w+FOdlWqAfJrLvpzMGNeDU14YGXiZ9bVzmIQbwrBA+c/F4tlK/DV07dsNExihqFoibnqDiVNTGombaU2dDup2gwKdL81ua8EIcGNExHe82kjF4zwfadHk3bQVvbfdAwxcDy4xBjs3L4raPLU3yenSzr/OEur1+jfOxnQSmEcMXKXgrAQ9U55gwjcOFKrgOxEdek/Sk1VfOjvS+nuM4eyEruFMfaZHzoQiuw4IqgGc45ohFH0UUyjYcuFxxDSU9lMCv8qdHKm+wnPRb0l9l5vXsCBDuhAGYD6ss+Ga+aDY6f/qXZuUCEUOH3QUNbbCUlviSz6+GiRnt1kA9N2Qachl+2yBfaqUqr8h7Z2gsx5LcIf5kYNsqJ0GavXTVyWh7PYiKX4bs354ZQLUwwa/cG++2+wNWP+HtBhVxMRNTdVhSm38AknZlD+PTAsWGu9GyLmhti2EnVwGybSD2Dxmhxk3IPCkhKAK+pl0eWYGZWG3tJ9mZ7SowcXLWDFAk0lRJnKGFMTggrWjV8GYpw5bq23VmIqqDLgkNzuoog==
+
+7.创建快捷方法：
+	1）sudo vim /usr/share/applications/intellij-idea.desktop
+	2）下面的内容粘贴到 intellij-idea.desktop 文件中
+		[Desktop Entry]
+		Name=IntelliJ IDEA
+		Exec=/home/nongfeng/idea2018/bin/idea.sh
+		Comment=IntelliJ IDEA
+		Icon=/home/nongfeng/idea2018/bin/idea.png
+		Type=Application
+		Terminal=false
+		Encoding=UTF-8
+	3）sudo chmod +x /usr/share/applications/intellij-idea.desktop
+
+=====================28 chrome安装===================
+1.下载
+	32：wget https://dl.google.com/linux/direct/google-chrome-stable_current_i386.deb 
+	64：wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+2.sudo dpkg -i google-chrome*;sudo apt-get install -f
+
+=====================29 git安装===============
+步骤1.
+首先，通过运行以下命令确保您的系统和apt包列表完全更新：
+	sudo apt-get update -y 
+	sudo apt-get upgrade -y
+第2步：sudo apt install git
+	检查已安装的git版本：git --version
+第3步。在Ubuntu 18.04上配置Git
+	安装后您可能想要做的第一件事是在Git中配置自己的名称和电子邮件地址，以便您提交的更改包含正确的信息。 您可以通过使用以下命令来完成此操作：
+	git config --global user.name "nongfeng"
+	git config --global user.email "nongfeng824@126.com"
+	查看.gitconfig来验证配置更改：git config --list
+
+=====================30 redis安装====================
+    sudo apt-get update2.
+    sudo apt-get install redis-server
+	启动 Redis：redis-server
+	查看 redis 是否启动？：redis-cli
+	验证成功：PING 命令
+	启动停止：
+	./etc/init.d/redis-server start
+	./etc/init.d/redis-server stop
+	./etc/init.d/redis-server restart
+
+=====================31 zookeeper安装配置====================
+	1.download:http://mirror.bit.edu.cn/apache/zookeeper/
+	2.tar zookeeper*.xxx 
+	3.mv zookeeper-3.4.10 zookeeper
+	4.cd zookeeper/conf/
+	5.cp zoo_sample.cfg zoo.cfg
+	6.sudo gedit zoo.cfg 
+	7.修改zookeeper安装目录
+		dataDir=/home/nongfeng/zookeeper
+		dataLogDir=/HD/nongfeng/zookeeper
+	8.启动zookeeper 
+		cd ../bin
+	 zkServer.sh start //启动
+	 zkServer.sh status //检查状态
+	 zkServer.sh stop //停止
+	9.检查zookeeper启动状态
+		ps -ef|grep zookeeper
+
+=====================32 activeMQ====================
+	1.apache官网下载
+	2.cd [activemq_install_dir]
+	  tar zxvf activemq-x.x.x-bin.tar.gz
+	  查看相关信息（控制台显示）： ./activemq console
+	3.启动
+		cd [activemq_install_dir]/bin
+		./activemq start
+	停止：cd [activemq_install_dir]/bin
+		./activemq stop
+	4.测试安装是否成功：http://0.0.0.0:8161/
+		URL: http://127.0.0.1:8161/admin/
+		Login: admin
+		Passwort: admin
+	5.activemq应用场景：
+		通用性
+		消息队列在大型电子商务类网站，如京东、淘宝、去哪儿等网站有这深入的应用，队列的主要作用是消除高并发访问高峰，加快网站的响应速度。
+		在不使用消息队列的情况下，用户的请求数据直接写入数据库，在高并发的情况下，会对数据库造成巨大的压力，同时也使得系统响应延迟加剧。
+		在使用队列后，用户的请求发给队列后立即返回（当然不能直接给用户提示订单提交成功，京东上提示：您“您提交了订单，请等待系统确认”），
+		再由消息队列的消费者进程从消息队列中获取数据，异步写入数据库。由于消息队列的服务处理速度远快于数据库，因此用户的响应延迟可得到有效改善。
+		下面为具体例子：
+		需求：
+		1、将大量的WebService请求报文发送到mq集群之中，并保持消息先后顺序
+		2、保证每个消息的可靠性
+		3、维护MQ服务器的可扩展性
+		综合考虑，决定使用Apache的 activemq。
+	
+=====================33 nginux ====================	
+--------------1. PCRE安装---------------------------------
+	1.download:https://sourceforge.net/projects/pcre/files/pcre/
+	2.tar -zxvf  xxx.gz
+	3.chmod -R 777 /pcre842
+	4.切换到/pcre-8.36目录下，运行 ./configure 进行pcre初始化配置
+	5.执行make操作，进行编译
+	6.运行 sudo make install 进行安装
+
+--------------2.安装zlib库 ---------------------------------
+	download:http://www.zlib.net/
+	---------------------
+	cd /home/nongfeng/zlib
+	tar -zxvf zlib-1.2.8.tar.gz
+	cd zlib-1.2.8
+	./configure
+	make
+	make install
+	---------------------
+
+--------------3.安装ssl（某些vps默认没装ssl)---------------------------------
+	cd /usr/local/src
+	wget https://www.openssl.org/source/openssl-1.0.1t.tar.gz
+	tar -zxvf openssl-1.0.1t.tar.gz
+
+
+--------------4.安装nginx---------------------------------
+	1.cd /home/nongfeng
+	2.wget http://nginx.org/download/nginx-1.4.2.tar.gz
+	3.tar -zxvf nginx-1.4.2.tar.gz
+	4.cd nginx-1.4.2
+	./configure --sbin-path=/home/nongfeng/nginx \
+	--conf-path=/home/nongfeng/nginx/nginx.conf \
+	--pid-path=/home/nongfeng/nginx/nginx.pid \
+	--with-http_ssl_module \
+	--with-pcre=/home/nongfeng/pcre842 \
+	--with-zlib=/home/nongfeng/zlib \
+	--with-openssl=/home/nongfeng/openssl
+	
+	--with-pcre=/home/nongfeng/pcre842 指的是pcre-8.42 的源码路径。
+	--with-zlib=/home/nongfeng/zlib 指的是zlib 的源码路径。
+	5.make
+	6.make install
+
+	安装成功后 /usr/local/nginx 目录下如下
+
+	fastcgi.conf            koi-win             nginx.conf.default
+	fastcgi.conf.default    logs                scgi_params
+	fastcgi_params          mime.types          scgi_params.default
+	fastcgi_params.default  mime.types.default  uwsgi_params
+	html                    nginx               uwsgi_params.default
+	koi-utf                 nginx.conf          win-utf
+
+	7.启动
+		运行/home/nongfeng/nginx/nginx 命令来启动 Nginx
+		启动后ps -aux|grep nginx查看，master和work进程是否都已经启动。netstat -anp|grep 80看80端口是否被nginx监听。
+		打开浏览器访问此机器的ip，如192.168.0.110/index.html
+
+	-------------------------------------
+	sudo systemctl start nginx 
+	sudo systemctl stop nginx 
+	sudo systemctl restart nginx	
+
+	sudo service nginx start
+	sudo service nginx stop
+	sudo service nginx restart
+
+	sudo /etc/init.d/nginx start
+	sudo /etc/init.d/nginx stop
+	sudo /etc/init.d/nginx restart
+
+	8. 停止Nginx    sudo kill `cat /home/nongfeng/nginx/nginx.pid`
+
+	安装错误1：objs/Makefile:447: recipe for target 'objs/src/core/ngx_murmurhash.o' failed
+	处理方案：将对应的makefile文件夹中（如本文中在 /nginx-1.10.3/objs/Makefile） 找到 -Werrori 并去掉 在重新make即可
+
+	安装错误2：安装配置bug
+	src/core/ngx_regex.h:15:18:fatal error: pcre.h: No such file or directory
+	solution
+	apt-get installlibpcre3-dev
+	问题3：Nginx [emerg]: bind() to 0.0.0.0:80 failed (98: Address already in use)
+	解决办法：sudo fuser -k 80/tcp
+
+=====================34 视频播放器VLC==================
+	sudo apt install vlc
+
+
+=====================35 忆图图示====================
+	1.download:http://www.edrawsoft.cn/download-edrawmax.php
+	2.	tar -zxvf edrawmax-8-64-cn.run.tgz
+		chmod +x EdrawMax-8-64.run
+		sudo ./EdrawMax-8-64.run
+	3.过期重置:		
+		chmod +x reset_use_time.sh
+		./reset_use_time.sh
+	
+=====================36 net123 ====================
+ sudo apt-get  install  mono-complete   
+ Download:http://www.nat123.com/down/nat123linux.tar.gz 
+ 启动：mono nat123linux.sh
+
+=====================37 ubuntu windows时间同步问题====================
+解决方法：
+$ sudo apt-get install ntpdate
+$ sudo ntpdate time.windows.com
+$ sudo hwclock --localtime --systohc
+
+=====================38 ====================
+=====================39 ====================
+=====================40 ====================
+=====================41 ====================
+=====================42 ====================
+=====================43 ====================
+=====================44 ====================
+
+
+---------------------常用命令--------
+nslookup 根据域名查看ip
+
