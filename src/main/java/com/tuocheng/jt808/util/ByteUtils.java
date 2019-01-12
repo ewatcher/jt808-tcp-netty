@@ -74,4 +74,22 @@ public class ByteUtils {
         }
     }
 
+    public static float parseFloatFromBytes(byte[] data, int startIndex, int length) {
+        try {
+            // 字节数大于4,从起始索引开始向后处理4个字节,其余超出部分丢弃
+            final int len = length > 4 ? 4 : length;
+            byte[] tmp = new byte[len];
+            System.arraycopy(data, startIndex, tmp, 0, len);
+            //解析速度时只有数组byte[]只有两位
+            if (2 == len) {
+                return BitUtils.chengByteToFloat(tmp);
+            }
+            return BitUtils.byte2Float(tmp);
+        } catch (Exception e) {
+            LOGGER.error("解析浮点数出错:{}", e.getMessage());
+            e.printStackTrace();
+            return 0.0f;
+        }
+    }
+
 }

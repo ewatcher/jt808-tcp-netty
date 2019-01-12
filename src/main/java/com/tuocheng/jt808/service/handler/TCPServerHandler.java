@@ -269,6 +269,11 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
     //=======================================
 
+    private void terminalCommonRespone(PackageData packageData, MsgHeader header){
+        LOGGER.info(">>>>>[终端通用应答],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+
+    }
+
     /**
      * 终端注册
      *

@@ -14,6 +14,8 @@ import java.util.Arrays;
  *
  * @ClassName MsgEncoderUtils
  * @Description TODO
+ * 1）根据终端注册信息、注册信息消息体和流水号，进行加密生成终端注册应答数据包 <br/>
+ * 2）根据终端数据包，平台通用应答消息体和流水号，生成平台通用答应数据包 <br/>
  * @Author nongfeng
  * @Date 19-1-12 下午3:10
  * @Version v1.0.0
@@ -22,8 +24,17 @@ import java.util.Arrays;
 public class MsgEncoderUtils {
 
 
+    /**
+     *  1）根据终端注册信息、注册信息消息体和流水号，进行加密生成终端注册应答数据包
+     * @param req 终端注册信息
+     * @param respMsgBody 终端注册信息消息体
+     * @param flowId 流水号
+     * @return 返回加密后的字节数组byte[]
+     * @throws Exception 抛出异常
+     */
     public static byte[] encode4TerminalRegisterResp(TerminalRegisterMsg req, TerminalRegisterMsgRespBody respMsgBody,
                                                      int flowId) throws Exception {
+        //1.构建终端注册应答消息体
         // 消息体字节数组
         byte[] msgBody = null;
         // 鉴权码(STRING) 只有在成功后才有该字段
@@ -45,19 +56,31 @@ public class MsgEncoderUtils {
             ));
         }
 
-        // 消息头
+        //2.构建终端数据包结构
+        //2.1消息头
+        //2.1.1消息头消息体属性
         int msgBodyProps = JT808ProtocolUtils.generateMsgBodyProps(msgBody.length, 0b000, false, 0);
+        //2.2消息头
         byte[] msgHeader = JT808ProtocolUtils.generateMsgHeader(req.getMsgHeader().getTerminalPhone(),
                 TPMSConsts.cmd_terminal_register_resp, msgBody, msgBodyProps, flowId);
+        //2.3消息头和消息体
         byte[] headerAndBody = BitUtils.concatAll(msgHeader, msgBody);
 
-        // 校验码
+        // 2.4校验码
         int checkSum = BitUtils.getCheckSum4JT808(headerAndBody, 0, headerAndBody.length - 1);
-        // 连接并且转义
+        // 3.连接并且转义
         return doEncode(headerAndBody, checkSum);
     }
 
 
+    /**
+     * 2）根据终端数据包，平台通用应答消息体和流水号，生成平台通用答应数据包
+     * @param req 终端数据包
+     * @param respMsgBody 平台通用应答消息体
+     * @param flowId 流水号
+     * @return 返回平台通用应答数据包byte[]
+     * @throws Exception 抛出异常
+     */
     public static byte[] encode4ServerCommonRespMsg(PackageData req, ServerCommonRespMsgBody respMsgBody, int flowId)
             throws Exception {
         byte[] msgBody = BitUtils.concatAll(Arrays.asList(

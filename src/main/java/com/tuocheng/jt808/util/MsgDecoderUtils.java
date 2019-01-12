@@ -11,7 +11,14 @@ import org.slf4j.LoggerFactory;
  * =================================
  *
  * @ClassName MsgDecoderUtils
- * @Description TODO
+ * @Description 终端数据解码器辅助类 <br/>
+ * 1) 通过Netty框架获取终端数据包字节数组后转换与PackageData数据模型; <br/>
+ * 2) 截取终端数据包中的消息头信息，并转换成MsgHeader数据模型; <br/>
+ * 3) 解析終端注冊消息数据包; <br/>
+ * 4) 解析终端位置信息汇报数据包; <br/>
+ * 5) ; <br/>
+ * 6) ; <br/>
+ *
  * @Author nongfeng
  * @Date 19-1-12 下午3:05
  * @Version v1.0.0
@@ -22,7 +29,7 @@ public class MsgDecoderUtils {
 
 
     /**
-     * 通过Netty框架获取终端数据包字节数组后转换与PackageData数据模型
+     * 1)通过Netty框架获取终端数据包字节数组后转换与PackageData数据模型
      *
      * @param data 终端数据包
      * @return 返回PackageData
@@ -57,20 +64,20 @@ public class MsgDecoderUtils {
     }
 
     /**
-     * 截取终端数据包中的消息头信息，并转换成MsgHeader数据模型
+     * 2)截取终端数据包中的消息头信息，并转换成MsgHeader数据模型
      *
      * @param data 终端数据包
-     * @return
+     * @return 返回MsgHeader
      */
-    private static MsgHeader parseMsgHeaderFromBytes(byte[] data) {
+    public static MsgHeader parseMsgHeaderFromBytes(byte[] data) {
         MsgHeader msgHeader = new MsgHeader();
 
         // 1. 消息ID word(16)
-        msgHeader.setMsgId(parseIntFromBytes(data, 0, 2));
+        msgHeader.setMsgId(ByteUtils.parseIntFromBytes(data, 0, 2));
 
         // 2. 消息体属性 word(16)=======消息体属性begin==========>
         //2.1配置消息体属性值
-        int msgBodyProps = parseIntFromBytes(data, 2, 2);
+        int msgBodyProps = ByteUtils.parseIntFromBytes(data, 2, 2);
         msgHeader.setMsgBodyPropsField(msgBodyProps);
         //处理技巧：在16个字节中获取的属性（长度，加密，子包，保留）位设置为1,后用16进制表示当前属性
         // （长度：0x3FF，加密:0x1c00，子包:0x2000，保留:0xc000）,
@@ -88,45 +95,25 @@ public class MsgDecoderUtils {
         msgHeader.setTerminalPhone(ByteUtils.parseBcdStringFromBytes(data, 4, 6));
 
         // 4. 消息流水号 word(16) 按发送顺序从 0 开始循环累加
-        msgHeader.setFlowId(parseIntFromBytes(data, 10, 2));
+        msgHeader.setFlowId(ByteUtils.parseIntFromBytes(data, 10, 2));
 
         // 5. 消息包封装项
         // 有子包信息
         if (msgHeader.isHasSubPackage()) {
             // 消息包封装项字段
-            msgHeader.setPackageInfoField(parseIntFromBytes(data, 12, 4));
+            msgHeader.setPackageInfoField(ByteUtils.parseIntFromBytes(data, 12, 4));
             // byte[0-1] 消息包总数(word(16))
-            msgHeader.setTotalSubPackage(parseIntFromBytes(data, 12, 2));
+            msgHeader.setTotalSubPackage(ByteUtils.parseIntFromBytes(data, 12, 2));
 
             // byte[2-3] 包序号(word(16)) 从 1 开始
-            msgHeader.setSubPackageSeq(parseIntFromBytes(data, 12, 2));
+            msgHeader.setSubPackageSeq(ByteUtils.parseIntFromBytes(data, 12, 2));
         }
         return msgHeader;
     }
 
 
-    private static int parseIntFromBytes(byte[] data, int startIndex, int length) {
-        return parseIntFromBytes(data, startIndex, length, 0);
-    }
-
-
-    private static int parseIntFromBytes(byte[] data, int startIndex, int length, int defaultVal) {
-        try {
-            // 字节数大于4,从起始索引开始向后处理4个字节,其余超出部分丢弃
-            final int len = length > 4 ? 4 : length;
-            byte[] tmp = new byte[len];
-            System.arraycopy(data, startIndex, tmp, 0, len);
-            return BitUtils.byteToInteger(tmp);
-        } catch (Exception e) {
-            LOGGER.error("解析整数出错:{}", e.getMessage());
-            e.printStackTrace();
-            return defaultVal;
-        }
-    }
-
-
     /**
-     * 解析終端注冊消息数据包
+     * 3)解析終端注冊消息数据包
      *
      * @param packageData 终端数据包
      * @return 返回TerminalRegisterMsg
@@ -141,11 +128,11 @@ public class MsgDecoderUtils {
         // 2.1. byte[0-1] 省域ID(WORD)
         // 设备安装车辆所在的省域，省域ID采用GB/T2260中规定的行政区划代码6位中前两位
         // 0保留，由平台取默认值
-        body.setProvinceId(parseIntFromBytes(data, 0, 2));
+        body.setProvinceId(ByteUtils.parseIntFromBytes(data, 0, 2));
 
         // 2.2. byte[2-3] 设备安装车辆所在的市域或县域,市县域ID采用GB/T2260中规定的行 政区划代码6位中后四位
         // 0保留，由平台取默认值
-        body.setCityId(parseIntFromBytes(data, 2, 2));
+        body.setCityId(ByteUtils.parseIntFromBytes(data, 2, 2));
 
         // 2.3. byte[4-8] 制造商ID(BYTE[5]) 5 个字节，终端制造商编码
         // byte[] tmp = new byte[5];
@@ -158,7 +145,7 @@ public class MsgDecoderUtils {
         body.setTerminalId(ByteUtils.parseStringFromBytes(data, 17, 7));
 
         // 2.6. byte[24] 车牌颜色(BYTE) 车牌颜 色按照JT/T415-2006 中5.4.12 的规定
-        body.setLicensePlateColor(parseIntFromBytes(data, 24, 1));
+        body.setLicensePlateColor(ByteUtils.parseIntFromBytes(data, 24, 1));
 
         // 2.7. byte[25-x] 车牌(STRING) 公安交 通管理部门颁 发的机动车号牌
         body.setLicensePlate(ByteUtils.parseStringFromBytes(data, 25, data.length - 25));
@@ -168,54 +155,41 @@ public class MsgDecoderUtils {
     }
 
 
+    /**
+     * 4)解析终端位置信息汇报数据包
+     *
+     * @param packageData 终端数据包
+     * @return 返回 LocationInfoUploadMsg
+     */
     public static LocationInfoUploadMsg toLocationInfoUploadMsg(PackageData packageData) {
+        //1.从终端数据包中截取消息体
         LocationInfoUploadMsg ret = new LocationInfoUploadMsg(packageData);
         final byte[] data = ret.getMsgBodyBytes();
 
-        // 1. byte[0-3] 报警标志(DWORD(32))
-        ret.setWarningFlagField(parseIntFromBytes(data, 0, 3));
-        // 2. byte[4-7] 状态(DWORD(32))
-        ret.setStatusField(parseIntFromBytes(data, 4, 4));
-        // 3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
-        ret.setLatitude(parseFloatFromBytes(data, 8, 4));
-        // 4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
-        ret.setLongitude(parseFloatFromBytes(data, 12, 4));
-        // 5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
-        ret.setElevation(parseIntFromBytes(data, 16, 2));
-        // byte[18-19] 速度(WORD) 1/10km/h
-        ret.setSpeed(parseFloatFromBytes(data, 18, 2));
-        // byte[20-21] 方向(WORD) 0-359，正北为 0，顺时针
-        ret.setDirection(parseIntFromBytes(data, 20, 2));
-        // byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
-        // GMT+8 时间，本标准中之后涉及的时间均采用此时区
-        // ret.setTime(this.par);
-
+        //2.解析参数
+        // 2.1  byte[0-3] 报警标志(DWORD(32))
+        ret.setWarningFlagField(ByteUtils.parseIntFromBytes(data, 0, 3));
+        // 2.2. byte[4-7] 状态(DWORD(32))
+        ret.setStatusField(ByteUtils.parseIntFromBytes(data, 4, 4));
+        // 2.3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
+        ret.setLatitude(ByteUtils.parseFloatFromBytes(data, 8, 4));
+        // 2.4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
+        ret.setLongitude(ByteUtils.parseFloatFromBytes(data, 12, 4));
+        // 2.5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
+        ret.setElevation(ByteUtils.parseIntFromBytes(data, 16, 2));
+        // 2.6 byte[18-19] 速度(WORD) 1/10km/h
+        ret.setSpeed(ByteUtils.parseFloatFromBytes(data, 18, 2));
+        // 2.7 byte[20-21] 方向(WORD) 0-359，正北为 0，顺时针
+        ret.setDirection(ByteUtils.parseIntFromBytes(data, 20, 2));
+        // 2.8 byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
         byte[] tmp = new byte[6];
         System.arraycopy(data, 22, tmp, 0, 6);
         String time = ByteUtils.parseBcdStringFromBytes(data, 22, 6);
 
+        //2.返回解析后的位置数据LocationInfoUploadMsg
         return ret;
     }
 
-    private static float parseFloatFromBytes(byte[] data, int startIndex, int length) {
-        return parseFloatFromBytes(data, startIndex, length, 0f);
-    }
 
-    private static float parseFloatFromBytes(byte[] data, int startIndex, int length, float defaultVal) {
-        try {
-            // 字节数大于4,从起始索引开始向后处理4个字节,其余超出部分丢弃
-            final int len = length > 4 ? 4 : length;
-            byte[] tmp = new byte[len];
-            System.arraycopy(data, startIndex, tmp, 0, len);
-            //解析速度时只有数组byte[]只有两位
-            if (2 == len) {
-                return BitUtils.chengByteToFloat(tmp);
-            }
-            return BitUtils.byte2Float(tmp);
-        } catch (Exception e) {
-            LOGGER.error("解析浮点数出错:{}", e.getMessage());
-            e.printStackTrace();
-            return defaultVal;
-        }
-    }
+
 }
