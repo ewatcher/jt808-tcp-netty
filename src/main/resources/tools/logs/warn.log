@@ -1,0 +1,8 @@
+2019-01-11 00:43:41  WARN - 检验码不一致,msgid:512,pkg:20,calculated:21 cn.hylexus.jt808.service.codec.MsgDecoder(56)
+2019-01-11 15:38:56  WARN - 检验码不一致,msgid:512,pkg:121,calculated:120 cn.hylexus.jt808.service.codec.MsgDecoder(61)
+2019-01-11 16:28:59  WARN - 检验码不一致,msgid:512,pkg:-23,calculated:-24 cn.hylexus.jt808.service.codec.MsgDecoder(61)
+2019-01-11 17:17:28  WARN - 检验码不一致,msgid:512,pkg:58,calculated:59 cn.hylexus.jt808.service.codec.MsgDecoder(61)
+2019-01-11 17:27:02  WARN - 检验码不一致,msgid:2,pkg:1,calculated:0 cn.hylexus.jt808.service.codec.MsgDecoder(61)
+2019-01-11 17:28:06  WARN - 检验码不一致,msgid:2,pkg:2,calculated:3 cn.hylexus.jt808.service.codec.MsgDecoder(61)
+2019-01-11 17:31:06  WARN - 检验码不一致,msgid:2,pkg:104,calculated:105 cn.hylexus.jt808.service.codec.MsgDecoder(61)
+2019-01-11 17:32:08  WARN - 检验码不一致,msgid:258,pkg:108,calculated:109 cn.hylexus.jt808.service.codec.MsgDecoder(61)

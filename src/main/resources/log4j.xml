@@ -10,7 +10,7 @@
     </appender>
 
     <appender name="errorAppender"
-              class="cn.hylexus.jt808.common.MyClassificationLogAppender">
+              class="com.tuocheng.jt808.common.MyClassificationLogAppender">
         <param name="File" value="../logs/error.log"/>
         <param name="append" value="true"/>
         <param name="DatePattern" value="'-'yyyy-MM-dd'.log'"/>
@@ -25,7 +25,7 @@
         </filter>
     </appender>
     <appender name="infoAppender"
-              class="cn.hylexus.jt808.common.MyClassificationLogAppender">
+              class="com.tuocheng.jt808.common.MyClassificationLogAppender">
         <param name="File" value="../logs/info.log"/>
         <param name="Append" value="true"/>
         <param name="DatePattern" value="'-'yyyy-MM-dd'.log'"/>
@@ -40,7 +40,7 @@
         </filter>
     </appender>
     <appender name="warnAppender"
-              class="cn.hylexus.jt808.common.MyClassificationLogAppender">
+              class="com.tuocheng.jt808.common.MyClassificationLogAppender">
         <param name="File" value="../logs/warn.log"/>
         <param name="Append" value="true"/>
         <param name="DatePattern" value="'-'yyyy-MM-dd'.log'"/>
@@ -55,7 +55,7 @@
         </filter>
     </appender>
     <appender name="debugAppender"
-              class="cn.hylexus.jt808.common.MyClassificationLogAppender">
+              class="com.tuocheng.jt808.common.MyClassificationLogAppender">
         <param name="File" value="../logs/debug.log"/>
         <param name="Append" value="true"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd'.log'"/>
@@ -83,7 +83,7 @@
     </appender>
 
     <appender name="webLogAppender"
-              class="cn.hylexus.jt808.common.MyClassificationLogAppender">
+              class="com.tuocheng.jt808.common.MyClassificationLogAppender">
         <param name="File" value="../logs/info.log"/>
         <param name="DatePattern" value="'.'yyyy-MM-dd'.log'"/>
         <param name="Threshold" value="info"/>
