@@ -72,6 +72,7 @@ public class HexStringUtils {
 
     /**
      * 十六进制字符串转换成字符串
+     *
      * @param hexStr
      * @return String
      */
@@ -88,7 +89,6 @@ public class HexStringUtils {
         }
         return new String(bytes, TPMSConsts.string_charset);
     }
-
 
 
     public static void main(String[] args) {

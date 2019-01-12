@@ -100,8 +100,6 @@ public class MsgDecoder {
     }
 
 
-
-
     private int parseIntFromBytes(byte[] data, int startIndex, int length) {
         return this.parseIntFromBytes(data, startIndex, length, 0);
     }
@@ -122,9 +120,9 @@ public class MsgDecoder {
     }
 
 
-
     /**
      * 解析終端注冊消息数据包
+     *
      * @param packageData
      * @return
      */

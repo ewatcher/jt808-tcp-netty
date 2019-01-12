@@ -30,6 +30,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     /**
      * 808部标终端【注册】业务处理方法
+     *
      * @param msg
      * @throws Exception
      */
@@ -64,6 +65,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     /**
      * 808部标终端【鉴权】业务处理方法
+     *
      * @param msg
      * @throws Exception
      */
@@ -99,6 +101,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     /**
      * 808部标终端【心跳】业务处理方法
+     *
      * @param req
      * @throws Exception
      */
@@ -119,6 +122,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     /**
      * 808部标终端【注销】业务处理方法
+     *
      * @param req
      * @throws Exception
      */
@@ -139,6 +143,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     /**
      * 808部标终端【位置信息汇报】业务处理方法
+     *
      * @param req
      * @throws Exception
      */
@@ -159,6 +164,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     /**
      * 808部标终端【位置信息汇报】业务处理方法
+     *
      * @param req
      * @throws Exception
      */

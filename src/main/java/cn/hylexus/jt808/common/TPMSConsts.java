@@ -51,7 +51,7 @@ public class TPMSConsts {
     /**
      * 补传分包请求
      */
-    public static final int CMD_REUPLOAD_SUB_PACKAGE= 0x8003;
+    public static final int CMD_REUPLOAD_SUB_PACKAGE = 0x8003;
 
     /**
      * 终端注册

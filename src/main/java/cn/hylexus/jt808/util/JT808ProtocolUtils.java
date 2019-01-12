@@ -58,8 +58,8 @@ public class JT808ProtocolUtils {
                 baos.write(bs[i]);
             }
             return baos.toByteArray();
-        } catch (Exception e) {
-            throw e;
+        } catch (Exception ex) {
+            throw ex;
         } finally {
             if (baos != null) {
                 baos.close();
@@ -127,7 +127,6 @@ public class JT808ProtocolUtils {
      * @param msgLen         消息体长度
      * @param enctyptionType 加密
      * @param isSubPackage   是否有子包
-     *
      * @param reversed_14_15 保留
      * @return 返回int类型的消息体
      */
@@ -136,7 +135,8 @@ public class JT808ProtocolUtils {
         // [10-12] 0001,1100,0000,0000(1C00)(加密类型)
         // [ 13_ ] 0010,0000,0000,0000(2000)(是否有子包)
         // [14-15] 1100,0000,0000,0000(C000)(保留位)
-        if (msgLen >= 1024) {
+        int maxMsgLength = 1024;
+        if (msgLen >= maxMsgLength) {
             log.warn("The max value of msgLen is 1023, but {} .", msgLen);
         }
         int subPkg = isSubPackage ? 1 : 0;
@@ -145,6 +145,17 @@ public class JT808ProtocolUtils {
         return ret & 0xffff;
     }
 
+    /**
+     * 生成终端数据包的头消息
+     *
+     * @param phone        终端手机号
+     * @param msgType      消息类型
+     * @param body         消息体
+     * @param msgBodyProps 消息头中的消息体属性
+     * @param flowId       流水号
+     * @return 返回终端头信息数据包byte[]数组
+     * @throws Exception 抛出异常
+     */
     public static byte[] generateMsgHeader(String phone, int msgType, byte[] body, int msgBodyProps, int flowId)
             throws Exception {
         ByteArrayOutputStream baos = null;

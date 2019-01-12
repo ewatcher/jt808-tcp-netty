@@ -387,7 +387,7 @@ public class BitUtils {
         return (number << Integer.SIZE - (end + 1)) >>> Integer.SIZE - (end - start + 1);
     }
 
-    public  static int getBitAt(int number, int index) {
+    public static int getBitAt(int number, int index) {
         if (index < 0) {
             throw new IndexOutOfBoundsException("min index is 0,but " + index);
         }

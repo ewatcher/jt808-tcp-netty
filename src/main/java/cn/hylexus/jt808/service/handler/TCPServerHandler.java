@@ -49,16 +49,16 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
             buf.readBytes(bs);
             //接收到的终端数据包进行转义
             try {
-                byte[] bsLast=JT808ProtocolUtils.doEscape4Receive(bs,0,bs.length);
+                byte[] bsLast = JT808ProtocolUtils.doEscape4Receive(bs, 0, bs.length);
                 // 字节数据转换为针对于808消息结构的实体类
                 PackageData pkg = this.decoder.bytes2PackageData(bsLast);
-                logger.info("---->data from terminal is:"+HexStringUtils.toHexString(bsLast));
+                logger.info("---->data from terminal is:" + HexStringUtils.toHexString(bsLast));
                 // 引用channel,以便回送数据给硬件
                 pkg.setChannel(ctx.channel());
                 this.processPackageData(pkg);
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.info("收到的终端数据包进行转义,发生错误，原因："+e.toString());
+                logger.info("收到的终端数据包进行转义,发生错误，原因：" + e.toString());
             }
 
         } finally {

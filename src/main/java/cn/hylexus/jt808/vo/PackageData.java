@@ -8,219 +8,222 @@ import io.netty.channel.Channel;
 
 public class PackageData {
 
-	/**
-	 * 16byte 消息头
-	 */
-	protected MsgHeader msgHeader;
+    /**
+     * 16byte 消息头
+     */
+    protected MsgHeader msgHeader;
 
-	// 消息体字节数组
-	@JSONField(serialize=false)
-	protected byte[] msgBodyBytes;
+    /**
+     * 消息体字节数组
+     */
+    @JSONField(serialize = false)
+    protected byte[] msgBodyBytes;
 
-	/**
-	 * 校验码 1byte
-	 */
-	protected int checkSum;
+    /**
+     * 校验码 1byte
+     */
+    protected int checkSum;
 
-	@JSONField(serialize=false)
-	protected Channel channel;
+    @JSONField(serialize = false)
+    protected Channel channel;
 
-	public MsgHeader getMsgHeader() {
-		return msgHeader;
-	}
+    public MsgHeader getMsgHeader() {
+        return msgHeader;
+    }
 
-	public void setMsgHeader(MsgHeader msgHeader) {
-		this.msgHeader = msgHeader;
-	}
+    public void setMsgHeader(MsgHeader msgHeader) {
+        this.msgHeader = msgHeader;
+    }
 
-	public byte[] getMsgBodyBytes() {
-		return msgBodyBytes;
-	}
+    public byte[] getMsgBodyBytes() {
+        return msgBodyBytes;
+    }
 
-	public void setMsgBodyBytes(byte[] msgBodyBytes) {
-		this.msgBodyBytes = msgBodyBytes;
-	}
+    public void setMsgBodyBytes(byte[] msgBodyBytes) {
+        this.msgBodyBytes = msgBodyBytes;
+    }
 
-	public int getCheckSum() {
-		return checkSum;
-	}
+    public int getCheckSum() {
+        return checkSum;
+    }
 
-	public void setCheckSum(int checkSum) {
-		this.checkSum = checkSum;
-	}
+    public void setCheckSum(int checkSum) {
+        this.checkSum = checkSum;
+    }
 
-	public Channel getChannel() {
-		return channel;
-	}
+    public Channel getChannel() {
+        return channel;
+    }
 
-	public void setChannel(Channel channel) {
-		this.channel = channel;
-	}
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
 
-	@Override
-	public String toString() {
-		return "PackageData [msgHeader=" + msgHeader + ", msgBodyBytes=" + Arrays.toString(msgBodyBytes) + ", checkSum="
-				+ checkSum + ", address=" + channel + "]";
-	}
+    @Override
+    public String toString() {
+        return "PackageData [msgHeader=" + msgHeader + ", msgBodyBytes=" + Arrays.toString(msgBodyBytes) + ", checkSum="
+                + checkSum + ", address=" + channel + "]";
+    }
 
-	public static class MsgHeader {
+    public static class MsgHeader {
 
-		/**
-		 * 消息ID
-		 */
-		private int msgId;
+        /**
+         * 消息ID
+         */
+        private int msgId;
 
-		//========
-		/**消息体属性
-		 * byte[2-3]
-		 */
-		private int msgBodyPropsField;
+        //========
+        /**
+         * 消息体属性
+         * byte[2-3]
+         */
+        private int msgBodyPropsField;
 
-		/**
-		 * 消息体长度
- 		 */
-		private int msgBodyLength;
+        /**
+         * 消息体长度
+         */
+        private int msgBodyLength;
 
-		/**
-		 * 数据加密方式
- 		 */
-		private int encryptionType;
+        /**
+         * 数据加密方式
+         */
+        private int encryptionType;
 
-		/**
-		 * 是否分包,true==>有消息包封装项
-		 */
-		private boolean hasSubPackage;
+        /**
+         * 是否分包,true==>有消息包封装项
+         */
+        private boolean hasSubPackage;
 
-		/**
-		 * 保留位[14-15]
-		 */
-		private String reservedBit;
-		/////// ========消息体属性
+        /**
+         * 保留位[14-15]
+         */
+        private String reservedBit;
+        /////// ========消息体属性
 
-		/**
-		 * 终端手机号
-		 */
-		private String terminalPhone;
+        /**
+         * 终端手机号
+         */
+        private String terminalPhone;
 
-		/**
-		 * 流水号
-		 */
-		private int flowId;
+        /**
+         * 流水号
+         */
+        private int flowId;
 
-		//////// =====消息包封装项
-		/**
-		 * 消息包封装项 byte[12-15]
-		 */
-		private int packageInfoField;
+        //////// =====消息包封装项
+        /**
+         * 消息包封装项 byte[12-15]
+         */
+        private int packageInfoField;
 
-		/**
-		 * 消息包总数(word(16))
- 		 */
-		private long totalSubPackage;
+        /**
+         * 消息包总数(word(16))
+         */
+        private long totalSubPackage;
 
-		/**
-		 * 包序号(word(16))这次发送的这个消息包是分包中的第几个消息包, 从 1 开始
- 		 */
-		private long subPackageSeq;
-		//////// =====消息包封装项
+        /**
+         * 包序号(word(16))这次发送的这个消息包是分包中的第几个消息包, 从 1 开始
+         */
+        private long subPackageSeq;
+        //////// =====消息包封装项
 
-		public int getMsgId() {
-			return msgId;
-		}
+        public int getMsgId() {
+            return msgId;
+        }
 
-		public void setMsgId(int msgId) {
-			this.msgId = msgId;
-		}
+        public void setMsgId(int msgId) {
+            this.msgId = msgId;
+        }
 
-		public int getMsgBodyLength() {
-			return msgBodyLength;
-		}
+        public int getMsgBodyLength() {
+            return msgBodyLength;
+        }
 
-		public void setMsgBodyLength(int msgBodyLength) {
-			this.msgBodyLength = msgBodyLength;
-		}
+        public void setMsgBodyLength(int msgBodyLength) {
+            this.msgBodyLength = msgBodyLength;
+        }
 
-		public int getEncryptionType() {
-			return encryptionType;
-		}
+        public int getEncryptionType() {
+            return encryptionType;
+        }
 
-		public void setEncryptionType(int encryptionType) {
-			this.encryptionType = encryptionType;
-		}
+        public void setEncryptionType(int encryptionType) {
+            this.encryptionType = encryptionType;
+        }
 
-		public String getTerminalPhone() {
-			return terminalPhone;
-		}
+        public String getTerminalPhone() {
+            return terminalPhone;
+        }
 
-		public void setTerminalPhone(String terminalPhone) {
-			this.terminalPhone = terminalPhone;
-		}
+        public void setTerminalPhone(String terminalPhone) {
+            this.terminalPhone = terminalPhone;
+        }
 
-		public int getFlowId() {
-			return flowId;
-		}
+        public int getFlowId() {
+            return flowId;
+        }
 
-		public void setFlowId(int flowId) {
-			this.flowId = flowId;
-		}
+        public void setFlowId(int flowId) {
+            this.flowId = flowId;
+        }
 
-		public boolean isHasSubPackage() {
-			return hasSubPackage;
-		}
+        public boolean isHasSubPackage() {
+            return hasSubPackage;
+        }
 
-		public void setHasSubPackage(boolean hasSubPackage) {
-			this.hasSubPackage = hasSubPackage;
-		}
+        public void setHasSubPackage(boolean hasSubPackage) {
+            this.hasSubPackage = hasSubPackage;
+        }
 
-		public String getReservedBit() {
-			return reservedBit;
-		}
+        public String getReservedBit() {
+            return reservedBit;
+        }
 
-		public void setReservedBit(String reservedBit) {
-			this.reservedBit = reservedBit;
-		}
+        public void setReservedBit(String reservedBit) {
+            this.reservedBit = reservedBit;
+        }
 
-		public long getTotalSubPackage() {
-			return totalSubPackage;
-		}
+        public long getTotalSubPackage() {
+            return totalSubPackage;
+        }
 
-		public void setTotalSubPackage(long totalPackage) {
-			this.totalSubPackage = totalPackage;
-		}
+        public void setTotalSubPackage(long totalPackage) {
+            this.totalSubPackage = totalPackage;
+        }
 
-		public long getSubPackageSeq() {
-			return subPackageSeq;
-		}
+        public long getSubPackageSeq() {
+            return subPackageSeq;
+        }
 
-		public void setSubPackageSeq(long packageSeq) {
-			this.subPackageSeq = packageSeq;
-		}
+        public void setSubPackageSeq(long packageSeq) {
+            this.subPackageSeq = packageSeq;
+        }
 
-		public int getMsgBodyPropsField() {
-			return msgBodyPropsField;
-		}
+        public int getMsgBodyPropsField() {
+            return msgBodyPropsField;
+        }
 
-		public void setMsgBodyPropsField(int msgBodyPropsField) {
-			this.msgBodyPropsField = msgBodyPropsField;
-		}
+        public void setMsgBodyPropsField(int msgBodyPropsField) {
+            this.msgBodyPropsField = msgBodyPropsField;
+        }
 
-		public void setPackageInfoField(int packageInfoField) {
-			this.packageInfoField = packageInfoField;
-		}
+        public void setPackageInfoField(int packageInfoField) {
+            this.packageInfoField = packageInfoField;
+        }
 
-		public int getPackageInfoField() {
-			return packageInfoField;
-		}
+        public int getPackageInfoField() {
+            return packageInfoField;
+        }
 
-		@Override
-		public String toString() {
-			return "MsgHeader [msgId=" + msgId + ", msgBodyPropsField=" + msgBodyPropsField + ", msgBodyLength="
-					+ msgBodyLength + ", encryptionType=" + encryptionType + ", hasSubPackage=" + hasSubPackage
-					+ ", reservedBit=" + reservedBit + ", terminalPhone=" + terminalPhone + ", flowId=" + flowId
-					+ ", packageInfoField=" + packageInfoField + ", totalSubPackage=" + totalSubPackage
-					+ ", subPackageSeq=" + subPackageSeq + "]";
-		}
+        @Override
+        public String toString() {
+            return "MsgHeader [msgId=" + msgId + ", msgBodyPropsField=" + msgBodyPropsField + ", msgBodyLength="
+                    + msgBodyLength + ", encryptionType=" + encryptionType + ", hasSubPackage=" + hasSubPackage
+                    + ", reservedBit=" + reservedBit + ", terminalPhone=" + terminalPhone + ", flowId=" + flowId
+                    + ", packageInfoField=" + packageInfoField + ", totalSubPackage=" + totalSubPackage
+                    + ", subPackageSeq=" + subPackageSeq + "]";
+        }
 
-	}
+    }
 
 }

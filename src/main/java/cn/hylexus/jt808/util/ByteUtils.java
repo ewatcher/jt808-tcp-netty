@@ -35,6 +35,7 @@ public class ByteUtils {
 
     /**
      * 根据指定的长度，始起位置将字节数组转换成BCD字符串
+     *
      * @param data
      * @param startIndex
      * @param lenth
@@ -51,7 +52,6 @@ public class ByteUtils {
             return null;
         }
     }
-
 
 
     /**

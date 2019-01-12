@@ -7,9 +7,24 @@ import io.netty.channel.Channel;
 
 public class Session {
 
+    /**
+     * session标识
+     */
     private String id;
+
+    /**
+     * 终端手机号
+     */
     private String terminalPhone;
+
+    /**
+     * netty通道
+     */
     private Channel channel = null;
+
+    /**
+     * 鉴权标记
+     */
     private boolean isAuthenticated = false;
 
     /**
