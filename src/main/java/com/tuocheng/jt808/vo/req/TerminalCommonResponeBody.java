@@ -1,17 +1,16 @@
-package com.tuocheng.jt808.vo.resp;
+package com.tuocheng.jt808.vo.req;
 
 /**
  * =====================================
  *
- * @ClassName: TerminalCommonResponeBody
- * @Description: 终端通用应答
+ * @ClassName:
+ * @Description:
  * @Author nongfeng
- * @Date create in 19-1-13  上午12:00
+ * @Date create in 19-1-13  上午5:26
  * @Version v1.0.0
  * =======================================
  */
 public class TerminalCommonResponeBody {
-
     /**
      * byte[0~1] 应答流水号(WORD) 对应的平台消息的流水号
      */
@@ -29,15 +28,7 @@ public class TerminalCommonResponeBody {
      * 2：消息有误 <br/>
      * 3:不支持 <br/>
      **/
-    private byte replyCode;
-
-    public byte getReplyCode() {
-        return replyCode;
-    }
-
-    public void setReplyCode(byte replyCode) {
-        this.replyCode = replyCode;
-    }
+    private int replyCode;
 
     public int getFlowId() {
         return flowId;
@@ -53,6 +44,14 @@ public class TerminalCommonResponeBody {
 
     public void setReplyId(int replyId) {
         this.replyId = replyId;
+    }
+
+    public int getReplyCode() {
+        return replyCode;
+    }
+
+    public void setReplyCode(int replyCode) {
+        this.replyCode = replyCode;
     }
 
     @Override

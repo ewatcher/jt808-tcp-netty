@@ -5,6 +5,7 @@ import com.tuocheng.jt808.util.JT808ProtocolUtils;
 import com.tuocheng.jt808.util.MsgDecoderUtils;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.req.LocationInfoUploadMsg;
+import com.tuocheng.jt808.vo.req.TerminalCommonResponeBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,9 +76,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         switch (header.getMsgId()) {
             //1.终端通用应答
             case TPMSConsts.TERMINAL_COMMON_RESPONE: {
-                //TODO
-                LOGGER.info(">>>>>>[终端通用应答]:" + header.getMsgId());
-                LOGGER.info("<<<<<<[终端通用应答]:" + header.getMsgId());
+                terminalCommonRespone(packageData, header);
                 break;
             }
             //2. 终端【心跳】业务处理
@@ -269,8 +268,20 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
     //=======================================
 
-    private void terminalCommonRespone(PackageData packageData, MsgHeader header){
+
+    private void terminalCommonRespone(PackageData packageData, MsgHeader header) {
         LOGGER.info(">>>>>[终端通用应答],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+        try {
+            this.msgProcessService.processTerminalCommonReply(packageData);
+            TerminalCommonResponeBody terminalCommonResponeBody = MsgDecoderUtils.toTerminalCommonResponeBodyMsg(packageData);
+            //TODO 数据入库
+            LOGGER.info("[终端通用应答信息入库]{}",terminalCommonResponeBody);
+            LOGGER.info("<<<<<[终端通用应答],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+        } catch (Exception e) {
+            LOGGER.error("<<<<<[终端通用应答]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
+                    e.getMessage());
+            e.printStackTrace();
+        }
 
     }
 

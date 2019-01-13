@@ -3,7 +3,9 @@ package com.tuocheng.jt808.util;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.PackageData;
 import com.tuocheng.jt808.vo.req.LocationInfoUploadMsg;
+import com.tuocheng.jt808.vo.req.TerminalCommonResponeBodyMsg;
 import com.tuocheng.jt808.vo.req.TerminalRegisterMsg;
+import com.tuocheng.jt808.vo.req.TerminalCommonResponeBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,5 +193,24 @@ public class MsgDecoderUtils {
     }
 
 
+    /**
+     * 4)解析终端位置信息汇报数据包
+     *
+     * @param packageData 终端数据包
+     * @return 返回 LocationInfoUploadMsg
+     */
+    public static TerminalCommonResponeBody toTerminalCommonResponeBodyMsg(PackageData packageData) {
+        //1.从终端数据包中截取消息体
+        TerminalCommonResponeBodyMsg ret = new TerminalCommonResponeBodyMsg(packageData);
+        final byte[] data = ret.getMsgBodyBytes();
+
+        //2.解析参数
+        TerminalCommonResponeBody msgBody=new TerminalCommonResponeBody();
+        msgBody.setFlowId(ByteUtils.parseIntFromBytes(data,0,2));
+        msgBody.setReplyId(ByteUtils.parseIntFromBytes(data,2,2));
+        msgBody.setReplyCode(ByteUtils.parseIntFromBytes(data,4,1));
+        //3.返回解析后的位置数据LocationInfoUploadMsg
+        return msgBody;
+    }
 
 }

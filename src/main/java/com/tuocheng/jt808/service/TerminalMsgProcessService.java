@@ -16,6 +16,14 @@ import com.tuocheng.jt808.vo.req.TerminalRegisterMsg;
 import com.tuocheng.jt808.vo.resp.ServerCommonRespMsgBody;
 import com.tuocheng.jt808.vo.resp.TerminalRegisterMsgRespBody;
 
+/**
+ * 1) 808部标终端【注册】业务处理方法 <br/>
+ * 2) 808部标终端【鉴权】业务处理方法 <br>
+ * 3) 808部标终端【心跳】业务处理方法 <br>
+ * 4) 808部标终端【注销】业务处理方法 <br/>
+ * 5) 808部标终端【位置信息汇报】业务处理方法 <br/>
+ * 6) 808部标终端【批量位置信息汇报】业务处理方法 <br/>
+ */
 public class TerminalMsgProcessService extends BaseMsgProcessService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TerminalMsgProcessService.class);
@@ -26,7 +34,8 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
     }
 
     /**
-     * 808部标终端【注册】业务处理方法
+     * 1) 808部标终端【注册】业务处理方法 <br>
+     *
      *
      * @param msg 终端注册数据包
      * @throws Exception 抛出异常
@@ -54,14 +63,14 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         respMsgBody.setReplyToken("111111");
         //4.获取流水号
         int flowId = super.getFlowId(msg.getChannel());
-        //5.消息加密，并转换成字节数组
+        //5.生成平台通用应答字节数组，并转义
         byte[] bs = MsgEncoderUtils.encode4TerminalRegisterResp(msg, respMsgBody, flowId);
         //6.将应答信息发送到终端
         super.send2Client(msg.getChannel(), bs);
     }
 
     /**
-     * 808部标终端【鉴权】业务处理方法
+     * 2) 808部标终端【鉴权】业务处理方法 <br>
      *
      * @param msg
      * @throws Exception
@@ -90,83 +99,83 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         respMsgBody.setReplyId(msg.getMsgHeader().getMsgId());
         //4.获取流水号
         int flowId = super.getFlowId(msg.getChannel());
-        //5.消息加密，并转换成字节数组
+        //5.生成平台通用应答字节数组，并转义
         byte[] bs = MsgEncoderUtils.encode4ServerCommonRespMsg(msg, respMsgBody, flowId);
         //6.将应答信息发送到终端
         super.send2Client(msg.getChannel(), bs);
     }
 
     /**
-     * 808部标终端【心跳】业务处理方法
+     * 3) 808部标终端【心跳】业务处理方法 <br>
      *
      * @param req
      * @throws Exception
      */
     public void processTerminalHeartBeatMsg(PackageData req) throws Exception {
         LOGGER.debug("心跳信息:{}", JSON.toJSONString(req, true));
-        //1.获取消息头
-        final MsgHeader reqHeader = req.getMsgHeader();
-        //2.创建平台通用应答消息体
-        ServerCommonRespMsgBody respMsgBody = new ServerCommonRespMsgBody(reqHeader.getFlowId(), reqHeader.getMsgId(),
-                ServerCommonRespMsgBody.success);
-        //3.获取流水号
-        int flowId = super.getFlowId(req.getChannel());
-        //4.消息加密，并转换成字节数组
-        byte[] bs = MsgEncoderUtils.encode4ServerCommonRespMsg(req, respMsgBody, flowId);
-        //5.将应答信息发送到终端
-        super.send2Client(req.getChannel(), bs);
+        //1.对终端进行应答--平台通用答应
+        commonReplyToTerminal(req);
+        //2.数据分析入库
+        //TODO
     }
 
     /**
-     * 808部标终端【注销】业务处理方法
+     * 4) 808部标终端【注销】业务处理方法  <br/>
      *
      * @param req
      * @throws Exception
      */
     public void processTerminalLogoutMsg(PackageData req) throws Exception {
         LOGGER.info("终端注销:{}", JSON.toJSONString(req, true));
-        //1.获取消息头
-        final MsgHeader reqHeader = req.getMsgHeader();
-        //2.创建平台通用应答消息体
-        ServerCommonRespMsgBody respMsgBody = new ServerCommonRespMsgBody(reqHeader.getFlowId(), reqHeader.getMsgId(),
-                ServerCommonRespMsgBody.success);
-        //3.获取流水号
-        int flowId = super.getFlowId(req.getChannel());
-        //4.消息加密，并转换成字节数组
-        byte[] bs = MsgEncoderUtils.encode4ServerCommonRespMsg(req, respMsgBody, flowId);
-        //5.将应答信息发送到终端
-        super.send2Client(req.getChannel(), bs);
+        //1.对终端进行应答--平台通用答应
+        commonReplyToTerminal(req);
+        //2.数据分析入库
+        //TODO
     }
 
     /**
-     * 808部标终端【位置信息汇报】业务处理方法
+     * 5) 808部标终端【位置信息汇报】业务处理方法 <br/>
      *
      * @param req
      * @throws Exception
      */
     public void processLocationInfoUploadMsg(LocationInfoUploadMsg req) throws Exception {
         LOGGER.debug("位置 信息:{}", JSON.toJSONString(req, true));
-        //1.获取消息头
-        final MsgHeader reqHeader = req.getMsgHeader();
-        //2.创建平台通用应答消息体
-        ServerCommonRespMsgBody respMsgBody = new ServerCommonRespMsgBody(reqHeader.getFlowId(), reqHeader.getMsgId(),
-                ServerCommonRespMsgBody.success);
-        //3.获取流水号
-        int flowId = super.getFlowId(req.getChannel());
-        //4.消息加密，并转换成字节数组
-        byte[] bs = MsgEncoderUtils.encode4ServerCommonRespMsg(req, respMsgBody, flowId);
-        //5.将应答信息发送到终端
-        super.send2Client(req.getChannel(), bs);
+        //1.对终端进行应答--平台通用答应
+        commonReplyToTerminal(req);
+        //2.数据分析入库
+        //TODO
     }
 
     /**
-     * 808部标终端【位置信息汇报】业务处理方法
+     * 6) 808部标终端【位置信息汇报】业务处理方法 <br/>
      *
      * @param req
      * @throws Exception
      */
     public void processLocationInfoBatUploadMsg(LocationInfoUploadMsg req) throws Exception {
         LOGGER.debug("批量位置 信息:{}", JSON.toJSONString(req, true));
+        //1.对终端进行应答--平台通用答应
+        commonReplyToTerminal(req);
+        //2.数据分析入库
+        //TODO
+    }
+
+    /**
+     * 7) 808部标终端【终端通用应答】业务处理方法 <br>
+     *
+     * @param req
+     * @throws Exception
+     */
+    public void processTerminalCommonReply(PackageData req) throws Exception {
+        LOGGER.debug("终端通用应答:{}", JSON.toJSONString(req, true));
+        //1.对终端进行应答--平台通用答应
+        commonReplyToTerminal(req);
+        //2.数据分析入库
+        //TODO
+    }
+
+    private void commonReplyToTerminal(PackageData req)throws Exception {
         //1.获取消息头
         final MsgHeader reqHeader = req.getMsgHeader();
         //2.创建平台通用应答消息体
@@ -174,7 +183,7 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
                 ServerCommonRespMsgBody.success);
         //3.获取流水号
         int flowId = super.getFlowId(req.getChannel());
-        //4.消息加密，并转换成字节数组
+        //4.生成平台通用应答字节数组，并转义
         byte[] bs = MsgEncoderUtils.encode4ServerCommonRespMsg(req, respMsgBody, flowId);
         //5.将应答信息发送到终端
         super.send2Client(req.getChannel(), bs);
