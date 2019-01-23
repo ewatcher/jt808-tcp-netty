@@ -337,5 +337,145 @@ public class TerminalParamConfigConsts {
      */
     public static final int PARAM_SETING_DISTANCE_CAMERA_CONTROL = 0x0065;
 
+    //0x0066-0x006F 保留
+
+    /**
+     * 图像/视频质量,1-10,1 最好 DWORD
+     */
+    public static final int PARAM_IMAGE_VEDIO_QUALITY = 0x0070;
+
+
+    /**
+     * 亮度,0-255 DWORD
+     */
+    public static final int PARAM_LIGHT_INTENSITY = 0x0071;
+
+
+    /**
+     * 对比度,0-127  DWORD
+     */
+    public static final int PARAM_CONTRAST = 0x0072;
+
+    /**
+     * 饱和度,0-127 DWORD
+     */
+    public static final int PARAM_SATURATION_LEVEL = 0x0073;
+
+    /**
+     * 色度,0-255 DWORD
+     */
+    public static final int PARAM_COLOR_LEVEL = 0x0074;
+
+    //0x0075-0x007F
+
+    /**
+     * 车辆里程表读数,1/10km DWORD
+     */
+    public static final int PARAM_ = 0x0080;
+
+    /**
+     * 车辆所在的省域 ID WORD
+     */
+    public static final int PARAM_PROVINCE_ID = 0x0081;
+
+    /**
+     * 车辆所在的市域 ID WORD
+     */
+    public static final int PARAM_CITY_ID = 0x0082;
+
+    /**
+     * 公安交通管理部门颁发的机动车号牌 STRING
+     */
+    public static final int PARAM_CAR_NO = 0x0083;
+
+    /**
+     * 车牌颜色,按照 JT/T415-2006 的 5.4.12 BYTE
+     */
+    public static final int PARAM_CAR_NO_COLOR = 0x0084;
+
+    /**
+     * GNSS 定位模式 BYTE <br/>
+     * bit0,0:禁用 GPS 定位, 1:启用 GPS 定位; <br/>
+     * bit1,0:禁用北斗定位, 1:启用北斗定位 <br/>
+     * bit2,0:禁用 GLONASS 定位, 1:启用 GLONASS 定位; <br/>
+     * bit3,0:禁用 Galileo 定位, 1:启用 Galileo 定位。 <br/>
+     */
+    public static final int PARAM_LOCATE_MODE = 0x0090;
+
+    /**
+     * GNSS 波特率 BYTE <br/>
+     * 0x00:4800;0x01:9600; <br/>
+     * 0x02:19200;0x03:38400; <br/>
+     * 0x04:57600;0x05:115200。 <br/>
+     */
+    public static final int PARAM_BAUD_RATE = 0x0091;
+
+    /**
+     * GNSS 模块详细定位数据输出频率  BYTE <br/>
+     * 0x00:500ms;0x01:1000ms(默认值); <br/>
+     * 0x02:2000ms;0x03:3000ms; <br/>
+     * 0x04:4000ms。 <br/>
+     */
+    public static final int PARAM_GNSS_OUTPUT_DATA_FREQUENCY = 0x0092;
+
+    /**
+     * GNSS 模块详细定位数据采集频率,单位为秒,默认为 1。 DWORD
+     */
+    public static final int PARAM_GNSS_COLLECT_FREQUENCY = 0x0093;
+
+    /**
+     * GNSS 模块详细定位数据上传方式:BYTE <br/>
+     * 0x00,本地存储,不上传(默认值); <br/>
+     * 0x01,按时间间隔上传; <br/>
+     * 0x02,按距离间隔上传; <br/>
+     * 0x0B,按累计时间上传,达到传输时间后自动停止上传; <br/>
+     * 0x0C,按累计距离上传,达到距离后自动停止上传; <br/>
+     * 0x0D,按累计条数上传,达到上传条数后自动停止上传。 <br/>
+     */
+    public static final int PARAM_GNSS_UPLOAD_MODE = 0x0094;
+
+    /**
+     *GNSS 模块详细定位数据上传设置 DWORD <br/>
+     * 上传方式为 0x01 时,单位为秒; <br/>
+     * 上传方式为 0x02 时,单位为米; <br/>
+     * 上传方式为 0x0B 时,单位为秒; <br/>
+     * 上传方式为 0x0C 时,单位为米; <br/>
+     * 上传方式为 0x0D 时,单位为条 <br/>
+     */
+    public static final int PARAM_GNSS_LOCATE_UPLOAD_SET = 0x0095;
+
+    /**
+     *CAN 总线通道 1 采集时间间隔(ms),0 表示不采集 DWORD
+     */
+    public static final int PARAM_CAN_CHANEL1_COLLECT_BEAT= 0x0100;
+
+
+    /**
+     *CAN 总线通道 1 上传时间间隔(s),0 表示不上传 WORD
+     */
+    public static final int PARAM_CAN_CHANEL1_UPLOAD_BEAT = 0x0101;
+
+    /**
+     *CAN 总线通道 2 采集时间间隔(ms),0 表示不采集 DWORD
+     */
+    public static final int PARAM_CAN_CHANEL2_COLLECT_BEAT = 0x0102;
+
+    /**
+     *CAN 总线通道 2 上传时间间隔(s),0 表示不上传 WORD
+     */
+    public static final int PARAM_CAN_CHANEL2_UPLOAD_BEAT= 0x0103;
+
+    /**
+     *CAN 总线 ID 单独采集设置:BYTE[8] <br/>
+     * bit63-bit32 表示此 ID 采集时间间隔(ms),0 表示不采集; <br/>
+     * bit31 表示 CAN 通道号,0:CAN1,1:CAN2; <br/>
+     * bit30 表示帧类型,0:标准帧,1:扩展帧; <br/>
+     * bit29 表示数据采集方式,0:原始数据,1:采集区间的计算值; <br/>
+     * bit28-bit0 表示 CAN 总线 ID。 <br/>
+     */
+    public static final int PARAM_CAN_COLLECT_SET= 0x0110;
+    //
+
+
 
 }
