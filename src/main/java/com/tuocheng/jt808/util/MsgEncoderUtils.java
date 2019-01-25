@@ -116,6 +116,17 @@ public class MsgEncoderUtils {
         return doEncode(headerAndBody, checkSum);
     }
 
+    public static byte[] encode4ParamQuery(Session session) throws Exception {
+        // 消息头
+        int msgBodyProps = JT808ProtocolUtils.generateMsgBodyProps(0, 0b000, false, 0);
+        byte[] msgHeader = JT808ProtocolUtils.generateMsgHeader(session.getTerminalPhone(),
+                TPMSConsts.CMD_QUERY_PROPERTIES, null, msgBodyProps, session.currentFlowId());
+        // 校验码
+        int checkSum = BitUtils.getCheckSum4JT808(msgHeader, 0, msgHeader.length - 1);
+        // 连接并且转义
+        return doEncode(msgHeader, checkSum);
+    }
+
     private static byte[] doEncode(byte[] headerAndBody, int checkSum) throws Exception {
         byte[] noEscapedBytes = BitUtils.concatAll(Arrays.asList(
                 // 0x7e

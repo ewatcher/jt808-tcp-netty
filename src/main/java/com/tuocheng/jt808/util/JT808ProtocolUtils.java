@@ -177,4 +177,6 @@ public class JT808ProtocolUtils {
             }
         }
     }
+
+
 }

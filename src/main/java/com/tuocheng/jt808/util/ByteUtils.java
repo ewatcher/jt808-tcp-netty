@@ -33,6 +33,10 @@ public class ByteUtils {
         }
     }
 
+
+
+
+
     /**
      * 根据指定的长度，始起位置将字节数组转换成BCD字符串
      *
@@ -91,5 +95,7 @@ public class ByteUtils {
             return 0.0f;
         }
     }
+
+
 
 }

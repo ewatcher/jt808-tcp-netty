@@ -25,13 +25,13 @@ public class LocationInfoUploadMsg extends PackageData {
      * byte[8-11] 纬度(DWORD(32))以度为单位的纬度值乘以 10 的 6 次方,精确到百万
      * 分之一度
      */
-    private float latitude;
+    private double latitude;
 
     /**
      * byte[12-15] 经度(DWORD(32))以度为单位的纬度值乘以 10 的 6 次方,精确到百万
      * 分之一度
      */
-    private float longitude;
+    private double longitude;
 
     /**
      * byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
@@ -41,7 +41,7 @@ public class LocationInfoUploadMsg extends PackageData {
     /**
      * byte[18-19] 速度(WORD) 1/10km/h
      */
-    private float speed;
+    private double speed;
 
     /**
      * byte[20-21] 方向(WORD) 0-359，正北为 0，顺时针
@@ -65,19 +65,35 @@ public class LocationInfoUploadMsg extends PackageData {
         this.msgHeader = packageData.getMsgHeader();
     }
 
-    public float getLatitude() {
+    public int getWarningFlagField() {
+        return warningFlagField;
+    }
+
+    public void setWarningFlagField(int warningFlagField) {
+        this.warningFlagField = warningFlagField;
+    }
+
+    public int getStatusField() {
+        return statusField;
+    }
+
+    public void setStatusField(int statusField) {
+        this.statusField = statusField;
+    }
+
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
@@ -89,11 +105,11 @@ public class LocationInfoUploadMsg extends PackageData {
         this.elevation = elevation;
     }
 
-    public float getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 
-    public void setSpeed(float speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
 
@@ -111,22 +127,6 @@ public class LocationInfoUploadMsg extends PackageData {
 
     public void setTime(Date time) {
         this.time = time;
-    }
-
-    public int getWarningFlagField() {
-        return warningFlagField;
-    }
-
-    public void setWarningFlagField(int warningFlagField) {
-        this.warningFlagField = warningFlagField;
-    }
-
-    public int getStatusField() {
-        return statusField;
-    }
-
-    public void setStatusField(int statusField) {
-        this.statusField = statusField;
     }
 
     @Override

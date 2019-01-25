@@ -1,8 +1,12 @@
 package com.tuocheng.jt808.service;
 
+import com.tuocheng.jt808.common.TPMSConsts;
+import com.tuocheng.jt808.common.TerminalParamConfigConsts;
+import com.tuocheng.jt808.util.HexStringUtils;
 import com.tuocheng.jt808.util.MsgEncoderUtils;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.req.LocationInfoUploadMsg;
+import com.tuocheng.jt808.vo.req.TerminalPropertiesReplyMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,6 +177,42 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         commonReplyToTerminal(req);
         //2.数据分析入库
         //TODO
+    }
+
+    public void queryparam(PackageData req)throws Exception{
+        //1.获取终端与平台通讯Session的id
+        final String sessionId = Session.buildId(req.getChannel());
+        //2.根据Session会话标识获取Session,如果为空,则根据终端手机号进行创建Session
+        Session session = sessionManager.findBySessionId(sessionId);
+        if (session == null) {
+            session = Session.buildSession(req.getChannel(), req.getMsgHeader().getTerminalPhone());
+        }
+        byte[] bs=MsgEncoderUtils.encode4ParamQuery(session);
+        LOGGER.debug("查询参数：{}", HexStringUtils.toHexString(bs));
+        super.send2Client(req.getChannel(),bs);
+        LOGGER.debug("下达查询终端指令:{}", JSON.toJSONString(req, true));
+
+    }
+
+    public void queryTerminalProperties(PackageData req)throws Exception{
+        //1.获取终端与平台通讯Session的id
+        final String sessionId = Session.buildId(req.getChannel());
+        //2.根据Session会话标识获取Session,如果为空,则根据终端手机号进行创建Session
+        Session session = sessionManager.findBySessionId(sessionId);
+        if (session == null) {
+            session = Session.buildSession(req.getChannel(), req.getMsgHeader().getTerminalPhone());
+        }
+        byte[] bs=MsgEncoderUtils.encode4ParamQuery(session);
+        LOGGER.debug("查询终端属性：{}", HexStringUtils.toHexString(bs));
+        super.send2Client(req.getChannel(),bs);
+
+
+    }
+
+    public void processQueryParamsReplyMsg(TerminalPropertiesReplyMsg req) throws Exception {
+        LOGGER.debug("查询终端属性应答:{}", JSON.toJSONString(req, true));
+        commonReplyToTerminal(req);
+
     }
 
     private void commonReplyToTerminal(PackageData req)throws Exception {

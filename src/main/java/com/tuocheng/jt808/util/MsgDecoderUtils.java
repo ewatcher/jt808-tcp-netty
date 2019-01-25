@@ -2,12 +2,12 @@ package com.tuocheng.jt808.util;
 
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.PackageData;
-import com.tuocheng.jt808.vo.req.LocationInfoUploadMsg;
-import com.tuocheng.jt808.vo.req.TerminalCommonResponeBodyMsg;
-import com.tuocheng.jt808.vo.req.TerminalRegisterMsg;
-import com.tuocheng.jt808.vo.req.TerminalCommonResponeBody;
+import com.tuocheng.jt808.vo.req.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 /**
  * =================================
@@ -174,9 +174,11 @@ public class MsgDecoderUtils {
         // 2.2. byte[4-7] 状态(DWORD(32))
         ret.setStatusField(ByteUtils.parseIntFromBytes(data, 4, 4));
         // 2.3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
-        ret.setLatitude(ByteUtils.parseFloatFromBytes(data, 8, 4));
+        LOGGER.info("纬度：{}",ByteUtils.parseIntFromBytes(data, 8, 4));
+        ret.setLatitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(data, 8, 4)));
         // 2.4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
-        ret.setLongitude(ByteUtils.parseFloatFromBytes(data, 12, 4));
+        LOGGER.info("经度：{}",ByteUtils.parseIntFromBytes(data, 12, 4));
+        ret.setLongitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(data, 12, 4)));
         // 2.5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
         ret.setElevation(ByteUtils.parseIntFromBytes(data, 16, 2));
         // 2.6 byte[18-19] 速度(WORD) 1/10km/h
@@ -191,6 +193,15 @@ public class MsgDecoderUtils {
         //2.返回解析后的位置数据LocationInfoUploadMsg
         return ret;
     }
+
+    //将纬度经度的整形值转换为double
+    private static double parseIntToLocateData(int d) {
+        BigDecimal d1 = new BigDecimal(Integer.toString(d));
+        BigDecimal d2 = new BigDecimal(Integer.toString(1000000));
+        // 四舍五入,保留6位小数
+        return d1.divide(d2,6,BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
 
 
     /**
@@ -211,6 +222,35 @@ public class MsgDecoderUtils {
         msgBody.setReplyCode(ByteUtils.parseIntFromBytes(data,4,1));
         //3.返回解析后的位置数据LocationInfoUploadMsg
         return msgBody;
+    }
+
+    /**
+     *  解析查询终端属性应答信息
+     * @param packageData
+     * @return
+     */
+    public static TerminalPropertiesReplyMsg toTerminalPropertiesReplyMsg(PackageData packageData){
+        //1.从终端数据包中截取消息体
+        TerminalPropertiesReplyMsg ret = new TerminalPropertiesReplyMsg(packageData);
+        final byte[] data = ret.getMsgBodyBytes();
+
+        //2.解析参数
+
+        // 2.1  终端类型byte[0-1] WORD(16)
+        ret.setTerminalType(ByteUtils.parseIntFromBytes(data, 0, 1));
+        // 2.2. 制造商ID byte[2-6]   BYTE[5] 5 个字节,终端制造商编码。
+        ret.setManufacturer(ByteUtils.parseStringFromBytes(data, 2, 5));
+        // 2.3. 终端型号 byte[7-26] BYTE[20] <br/>
+        ret.setTerminalModel(ByteUtils.parseStringFromBytes(data, 7, 20));
+        // 2.4. 终端 ID byte[27-41] BYTE[7] <br/>
+        ret.setTerminalID(ByteUtils.parseStringFromBytes(data, 27, 7));
+        // 2.5. 终端 SIM 卡 ICCID byte[42-51] BCD[10] <br/>
+        ret.setSIMICCID(ByteUtils.parseBcdStringFromBytes(data, 42, 10));
+        // 2.6 终端硬件版本号长度 byte[52] BYTE
+        ret.setTerminalType(ByteUtils.parseIntFromBytes(data, 52, 1));
+
+        //3.返回解析后的位置数据TerminalPropertiesReplyMsgs
+        return ret;
     }
 
 }

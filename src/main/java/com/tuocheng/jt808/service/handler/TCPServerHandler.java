@@ -1,11 +1,11 @@
 package com.tuocheng.jt808.service.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.tuocheng.jt808.util.HexStringUtils;
 import com.tuocheng.jt808.util.JT808ProtocolUtils;
 import com.tuocheng.jt808.util.MsgDecoderUtils;
 import com.tuocheng.jt808.vo.MsgHeader;
-import com.tuocheng.jt808.vo.req.LocationInfoUploadMsg;
-import com.tuocheng.jt808.vo.req.TerminalCommonResponeBody;
+import com.tuocheng.jt808.vo.req.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +14,6 @@ import com.tuocheng.jt808.server.SessionManager;
 import com.tuocheng.jt808.service.TerminalMsgProcessService;
 import com.tuocheng.jt808.vo.PackageData;
 import com.tuocheng.jt808.vo.Session;
-import com.tuocheng.jt808.vo.req.TerminalAuthenticationMsg;
-import com.tuocheng.jt808.vo.req.TerminalRegisterMsg;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -35,6 +33,12 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         this.msgProcessService = new TerminalMsgProcessService();
     }
 
+    /**
+     * 读取终端传递过来的数据
+     *
+     * @param ctx
+     * @param msg
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
@@ -54,6 +58,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
                 LOGGER.info("---->data from terminal is:" + HexStringUtils.toHexString(bsLast));
                 // 引用channel,以便回送数据给硬件
                 pkg.setChannel(ctx.channel());
+                //对接收到的数据进行处理
                 this.processPackageData(pkg);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -102,15 +107,13 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
             //6.查询终端参数应答
             case TPMSConsts.QUERY_TERMINAL_PARAMS_RESPONE: {
                 //TODO
-                LOGGER.info(">>>>>>[查询终端参数应答]:" + header.getMsgId());
-                LOGGER.info("<<<<<<[查询终端参数应答]:" + header.getMsgId());
+                terminalQueryAnswer(packageData, header);
                 break;
             }
             //7.查询终端属性应答
             case TPMSConsts.QUERY_PROPERTIES_RESPONE: {
                 //TODO
-                LOGGER.info(">>>>>>[询终端属性应答]:" + header.getMsgId());
-                LOGGER.info("<<<<<<[询终端属性应答]:" + header.getMsgId());
+                terminalQueryPropertiesReply(packageData, header);
                 break;
             }
             //8.终端升级结果通知
@@ -223,12 +226,29 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
     }
 
+    /**
+     * exceptionCaught() 事件处理方法是当出现 Throwable 对象才会被调用，
+     * 即当 Netty 由于 IO 错误或者处理器在处理事件时抛出的异常时。
+     * 在大部分情况下，捕获的异常应该被记录下来并且把关联的 channel 给关闭掉。
+     * 然而这个方法的处理方式会在遇到不同异常的情况下有不同的实现，
+     * 比如你可能想在关闭连接之前发送一个错误码的响应消息。
+     *
+     * @param ctx
+     * @param cause
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
         LOGGER.error("发生异常:{}", cause.getMessage());
         cause.printStackTrace();
     }
 
+    /**
+     * netty 通道激活事件，如终端连接
+     * 覆盖channelActive 方法在channel被启用的时候触发（在建立连接的时候）
+     * 覆盖了 channelActive() 事件处理方法。服务端监听到客户端活动
+     *
+     * @param ctx
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Session session = Session.buildSession(ctx.channel());
@@ -236,6 +256,11 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         LOGGER.debug("终端连接:{}", session);
     }
 
+    /**
+     * netty通道关闭事件 终端断开连接
+     *
+     * @param ctx
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         final String sessionId = ctx.channel().id().asLongText();
@@ -246,6 +271,13 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         // ctx.close();
     }
 
+
+    /**
+     * 用户主动触发事件
+     *
+     * @param ctx
+     * @param evt
+     */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
@@ -258,6 +290,12 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         }
     }
 
+
+    /**
+     * 释放资源
+     *
+     * @param msg 信息对象
+     */
     private void release(Object msg) {
         try {
             ReferenceCountUtil.release(msg);
@@ -275,7 +313,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
             this.msgProcessService.processTerminalCommonReply(packageData);
             TerminalCommonResponeBody terminalCommonResponeBody = MsgDecoderUtils.toTerminalCommonResponeBodyMsg(packageData);
             //TODO 数据入库
-            LOGGER.info("[终端通用应答信息入库]{}",terminalCommonResponeBody);
+            LOGGER.info("[终端通用应答信息入库]{}", terminalCommonResponeBody);
             LOGGER.info("<<<<<[终端通用应答],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
         } catch (Exception e) {
             LOGGER.error("<<<<<[终端通用应答]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
@@ -316,6 +354,13 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         }
     }
 
+
+    private void terminalQueryAnswer(PackageData packageData, MsgHeader header) {
+        LOGGER.info(">>>>>>[查询终端参数应答]:" + header.getMsgId());
+        LOGGER.debug("查询终端参数 信息:{}", JSON.toJSONString(packageData, true));
+        LOGGER.info("<<<<<<[查询终端参数应答]:" + header.getMsgId());
+    }
+
     private void terminalRegister(PackageData packageData, MsgHeader header) {
         try {
             TerminalRegisterMsg msg = MsgDecoderUtils.toTerminalRegisterMsg(packageData);
@@ -346,6 +391,8 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
             LocationInfoUploadMsg locationInfoUploadMsg = MsgDecoderUtils.toLocationInfoUploadMsg(packageData);
             this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
             LOGGER.info("<<<<<[位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+            //TODO
+            //msgProcessService.queryTerminalProperties(packageData);
         } catch (Exception e) {
             LOGGER.error("<<<<<[位置信息]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
                     e.getMessage());
@@ -365,5 +412,17 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         LOGGER.info("<<<<<[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
     }
 
+
+    private void terminalQueryPropertiesReply(PackageData packageData, MsgHeader header) {
+        LOGGER.info(">>>>>[查询终端属性应答信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+        //TODO
+        try {
+            TerminalPropertiesReplyMsg replyMsg = MsgDecoderUtils.toTerminalPropertiesReplyMsg(packageData);
+            this.msgProcessService.processQueryParamsReplyMsg(replyMsg);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        LOGGER.info("<<<<<[查询终端属性应答信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+    }
 
 }
