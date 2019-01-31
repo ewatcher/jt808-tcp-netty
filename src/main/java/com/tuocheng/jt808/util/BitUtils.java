@@ -360,17 +360,40 @@ public class BitUtils {
             throw new ArrayIndexOutOfBoundsException("getCheckSum4JT808 error : index out of bounds(start=" + start
                     + ",end=" + end + ",bytes length=" + bs.length + ")");
         }
-        int cs = 0;
-        for (int i = start; i <= end; i++) {
+        int cs =0;
+        for (int i = start; i <=end; i++) {
             cs ^= bs[i];
         }
-        return cs;
+        return (int)cs&0xFF;
     }
 
+    public static String getBCC(byte[] data) {
+
+        String ret = "";
+        byte BCC[]= new byte[1];
+        for(int i=0;i<data.length;i++)
+        {
+            BCC[0]=(byte) (BCC[0] ^ data[i]);
+        }
+        String hex = Integer.toHexString(BCC[0] & 0xFF);
+        if (hex.length() == 1) {
+            hex = '0' + hex;
+        }
+        ret += hex.toUpperCase();
+        return ret;
+    }
+
+
+
     public static void main(String[] args) {
-        byte[] bs = new byte[]{01, 02, 00, 06, 06, 71, 120, 121, 03, 117, 01, 104, 49, 49, 49, 49, 49, 49, 58};
-        int a = BitUtils.getCheckSum4JT808(bs, 0, 18);
+       // String str = "00020000066478790375027D026B";
+        String str = "0100002D0664787903750087002D0A3E373031313142534A5F413642440000000000000000000000003030303034343401D4C1423838383838BE";
+        byte[] bs = HexStringUtils.hexStringToByteArray(str);
+        int a = BitUtils.getCheckSum4JT808(bs, 0, bs.length - 1);
         System.out.println("----checkNumber:" + a);
+        System.out.println("BCC is:"+Integer.valueOf(getBCC(bs),16));
+        byte b=-121;
+        System.out.println((int)b&0xFF);
     }
 
     public static int getBitRange(int number, int start, int end) {

@@ -68,6 +68,7 @@ public class HexStringUtils {
     }
 
 
+
     /**
      * 十六进制字符串转换成字符串
      *
@@ -89,6 +90,7 @@ public class HexStringUtils {
     }
 
 
+
     public static void main(String[] args) {
        /* String s = "abc你好";
         String hex = toHexString(s.getBytes());
@@ -97,9 +99,17 @@ public class HexStringUtils {
         System.out.println("十六进制字符串:" + hex);
         System.out.println("还原:" + decode);*/
 
-        byte[] bs = hexStringToByteArray("B9F04C3632443236");
+       /* byte[] bs = hexStringToByteArray("B9F04C3632443236");
 
-        System.out.println("还原:" + hexStr2Str("3730313131"));
+        System.out.println("还原:" + hexStr2Str("3730313131"));*/
+
+        String str = "F6";
+        Integer in = Integer.valueOf(str,16);
+        System.out.println(in);
+        String st = Integer.toHexString(in).toUpperCase();
+        st = String.format("%5s",st);
+        st= st.replaceAll(" ","0");
+        System.out.println(st);
 
     }
 }

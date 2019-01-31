@@ -52,7 +52,14 @@ public class LocationInfoUploadMsg extends PackageData {
      * byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
      * GMT+8 时间，本标准中之后涉及的时间均采用此时区
      */
-    private Date time;
+    private String gpsTime;
+
+
+    /**
+     * 位置上传时间 格式YYYY-MM-dd-HH-mm-ss add
+     */
+    private String uploadTime;
+
 
     public LocationInfoUploadMsg() {
     }
@@ -121,19 +128,38 @@ public class LocationInfoUploadMsg extends PackageData {
         this.direction = direction;
     }
 
-    public Date getTime() {
-        return time;
+
+    public String getGpsTime() {
+        return gpsTime;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
+    public void setGpsTime(String gpsTime) {
+        this.gpsTime = gpsTime;
     }
+
+    public String getUploadTime() {
+        return uploadTime;
+    }
+
+    public void setUploadTime(String uploadTime) {
+        this.uploadTime = uploadTime;
+    }
+
+    //===========附加信息属性
+
 
     @Override
     public String toString() {
-        return "LocationInfoUploadMsg [warningFlagField=" + warningFlagField + ", statusField=" + statusField
-                + ", latitude=" + latitude + ", longitude=" + longitude + ", elevation=" + elevation + ", speed="
-                + speed + ", direction=" + direction + ", time=" + time + "]";
+        return "LocationInfoUploadMsg{" +
+                "warningFlagField=" + warningFlagField +
+                ", statusField=" + statusField +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", elevation=" + elevation +
+                ", speed=" + speed +
+                ", direction=" + direction +
+                ", gpsTisme='" + gpsTime + '\'' +
+                ", uploadTime='" + uploadTime + '\'' +
+                '}';
     }
-
 }

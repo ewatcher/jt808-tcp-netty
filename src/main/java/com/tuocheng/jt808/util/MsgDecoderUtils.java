@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Date;
 
 /**
  * =================================
@@ -55,9 +56,10 @@ public class MsgDecoderUtils {
         ret.setMsgBodyBytes(tmp);
 
         // 3.获取校验码， 去掉分隔符之后，最后一位就是校验码
-        int checkSumInPkg = data[data.length - 1];
+        int checkSumInPkg =(int)data[data.length - 1]&0xFF;
         //将终端字节数组进行BCC校验，如果不一致输出到日志中
         int calculatedCheckSum = BitUtils.getCheckSum4JT808(data, 0, data.length - 2);
+        LOGGER.info("my checkSum:"+calculatedCheckSum+",hex is:"+Integer.toHexString(calculatedCheckSum).toUpperCase());
         ret.setCheckSum(checkSumInPkg);
         if (checkSumInPkg != calculatedCheckSum) {
             LOGGER.warn("检验码不一致,msgid:{},pkg:{},calculated:{}", msgHeader.getMsgId(), checkSumInPkg, calculatedCheckSum);
@@ -189,6 +191,9 @@ public class MsgDecoderUtils {
         byte[] tmp = new byte[6];
         System.arraycopy(data, 22, tmp, 0, 6);
         String time = ByteUtils.parseBcdStringFromBytes(data, 22, 6);
+        LOGGER.info("---time is:"+time);
+        ret.setGpsTime("20"+time);
+        ret.setUploadTime(MyDateUtils.longToString(System.currentTimeMillis(),"YYYYMMddHHmmss"));
 
         //2.返回解析后的位置数据LocationInfoUploadMsg
         return ret;

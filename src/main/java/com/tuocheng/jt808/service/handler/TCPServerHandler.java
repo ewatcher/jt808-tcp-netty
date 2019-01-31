@@ -1,6 +1,7 @@
 package com.tuocheng.jt808.service.handler;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.tuocheng.jt808.util.HexStringUtils;
 import com.tuocheng.jt808.util.JT808ProtocolUtils;
 import com.tuocheng.jt808.util.MsgDecoderUtils;
@@ -52,10 +53,11 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
             buf.readBytes(bs);
             //接收到的终端数据包进行转义
             try {
+                LOGGER.info("---->begin data is:" + HexStringUtils.toHexString(bs));
                 byte[] bsLast = JT808ProtocolUtils.doEscape4Receive(bs, 0, bs.length);
                 // 字节数据转换为针对于808消息结构的实体类
                 PackageData pkg = MsgDecoderUtils.bytes2PackageData(bsLast);
-                LOGGER.info("---->data from terminal is:" + HexStringUtils.toHexString(bsLast));
+
                 // 引用channel,以便回送数据给硬件
                 pkg.setChannel(ctx.channel());
                 //对接收到的数据进行处理
@@ -403,12 +405,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
     private void terminalLocateBatUpload(PackageData packageData, MsgHeader header) {
         LOGGER.info(">>>>>[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
         //TODO
-        try {
-            LocationInfoUploadMsg locationInfoUploadMsg = MsgDecoderUtils.toLocationInfoUploadMsg(packageData);
-            this.msgProcessService.processLocationInfoBatUploadMsg(locationInfoUploadMsg);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        LOGGER.info("批量信息:{}", JSON.toJSONString(header, true));
         LOGGER.info("<<<<<[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
     }
 
