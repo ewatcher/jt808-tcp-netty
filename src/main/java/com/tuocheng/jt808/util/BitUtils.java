@@ -383,19 +383,6 @@ public class BitUtils {
         return ret;
     }
 
-
-
-    public static void main(String[] args) {
-       // String str = "00020000066478790375027D026B";
-        String str = "0100002D0664787903750087002D0A3E373031313142534A5F413642440000000000000000000000003030303034343401D4C1423838383838BE";
-        byte[] bs = HexStringUtils.hexStringToByteArray(str);
-        int a = BitUtils.getCheckSum4JT808(bs, 0, bs.length - 1);
-        System.out.println("----checkNumber:" + a);
-        System.out.println("BCC is:"+Integer.valueOf(getBCC(bs),16));
-        byte b=-121;
-        System.out.println((int)b&0xFF);
-    }
-
     public static int getBitRange(int number, int start, int end) {
         if (start < 0) {
             throw new IndexOutOfBoundsException("min index is 0,but start = " + start);
@@ -432,4 +419,26 @@ public class BitUtils {
         sb = new StringBuilder(tmp);
         return Integer.parseInt(sb.reverse().toString(), 2);
     }
+
+    public static void main(String[] args)
+    {
+        int num = 786626;
+        String binaryString = Integer.toBinaryString(num);
+        System.out.println(binaryString);
+        for (int i = 0; i < binaryString.getBytes().length; i++)
+        {
+            System.out.print(getIntWithBit(num, i) + "\t");
+        }
+    }
+
+    /**
+     * 获取指定的int型数据中某一位的二进制值
+     * @param num:要获取二进制值的数
+     * @param index:倒数第一位为0，依次类推
+     */
+    public static int getIntWithBit(int num, int index)
+    {
+        return (num & (0x1 << index)) >> index;
+    }
+
 }

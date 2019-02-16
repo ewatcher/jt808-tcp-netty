@@ -33,6 +33,11 @@ public class ByteUtils {
         }
     }
 
+    public static void  main(String[] arg){
+        byte[] data=new byte[]{0x00,0x00,0x00,0x08};
+        System.out.println(parseIntFromBytes(data,0,3));
+    }
+
 
 
 

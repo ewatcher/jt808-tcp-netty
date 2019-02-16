@@ -1,5 +1,6 @@
 package com.tuocheng.jt808.util;
 
+import com.tuocheng.jt808.common.LocateMsgConsts;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.PackageData;
 import com.tuocheng.jt808.vo.req.*;
@@ -21,7 +22,6 @@ import java.util.Date;
  * 4) 解析终端位置信息汇报数据包; <br/>
  * 5) ; <br/>
  * 6) ; <br/>
- *
  * @Author nongfeng
  * @Date 19-1-12 下午3:05
  * @Version v1.0.0
@@ -56,10 +56,10 @@ public class MsgDecoderUtils {
         ret.setMsgBodyBytes(tmp);
 
         // 3.获取校验码， 去掉分隔符之后，最后一位就是校验码
-        int checkSumInPkg =(int)data[data.length - 1]&0xFF;
+        int checkSumInPkg = (int) data[data.length - 1] & 0xFF;
         //将终端字节数组进行BCC校验，如果不一致输出到日志中
         int calculatedCheckSum = BitUtils.getCheckSum4JT808(data, 0, data.length - 2);
-        LOGGER.info("my checkSum:"+calculatedCheckSum+",hex is:"+Integer.toHexString(calculatedCheckSum).toUpperCase());
+        LOGGER.info("my checkSum:" + calculatedCheckSum + ",hex is:" + Integer.toHexString(calculatedCheckSum).toUpperCase());
         ret.setCheckSum(checkSumInPkg);
         if (checkSumInPkg != calculatedCheckSum) {
             LOGGER.warn("检验码不一致,msgid:{},pkg:{},calculated:{}", msgHeader.getMsgId(), checkSumInPkg, calculatedCheckSum);
@@ -169,17 +169,22 @@ public class MsgDecoderUtils {
         //1.从终端数据包中截取消息体
         LocationInfoUploadMsg ret = new LocationInfoUploadMsg(packageData);
         final byte[] data = ret.getMsgBodyBytes();
-
         //2.解析参数
         // 2.1  byte[0-3] 报警标志(DWORD(32))
-        ret.setWarningFlagField(ByteUtils.parseIntFromBytes(data, 0, 3));
+        int state=ByteUtils.parseIntFromBytes(data, 0, 4);
+        //解析报警状态
+        ret.setWarningFlagField(state);
+        configAlarmState(ret, state);
+
         // 2.2. byte[4-7] 状态(DWORD(32))
-        ret.setStatusField(ByteUtils.parseIntFromBytes(data, 4, 4));
+        int statusState=ByteUtils.parseIntFromBytes(data, 4, 4);
+        ret.setStatusField(statusState);
+        //解析状态
+        configStatus(ret, statusState);
+
         // 2.3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
-        LOGGER.info("纬度：{}",ByteUtils.parseIntFromBytes(data, 8, 4));
         ret.setLatitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(data, 8, 4)));
         // 2.4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
-        LOGGER.info("经度：{}",ByteUtils.parseIntFromBytes(data, 12, 4));
         ret.setLongitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(data, 12, 4)));
         // 2.5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
         ret.setElevation(ByteUtils.parseIntFromBytes(data, 16, 2));
@@ -191,22 +196,196 @@ public class MsgDecoderUtils {
         byte[] tmp = new byte[6];
         System.arraycopy(data, 22, tmp, 0, 6);
         String time = ByteUtils.parseBcdStringFromBytes(data, 22, 6);
-        LOGGER.info("---time is:"+time);
-        ret.setGpsTime("20"+time);
-        ret.setUploadTime(MyDateUtils.longToString(System.currentTimeMillis(),"YYYYMMddHHmmss"));
-
+        ret.setGpsTime("20" + time);
+        ret.setUploadTime(MyDateUtils.longToString(System.currentTimeMillis(), "YYYYMMddHHmmss"));
+        //解析附加消息
+        configLoadAddMsg(ret, data);
         //2.返回解析后的位置数据LocationInfoUploadMsg
         return ret;
     }
+
+    /**
+     * 解析状态信息
+     * @param ret
+     * @param stateValue
+     * @return
+     */
+    private static LocationInfoUploadMsg configStatus(LocationInfoUploadMsg ret, int stateValue) {
+        ret.setAccStatus(BitUtils.getIntWithBit(stateValue, 0));
+        ret.setLocateStatus(BitUtils.getIntWithBit(stateValue, 1));
+        ret.setLatitudeStatus(BitUtils.getIntWithBit(stateValue, 2));
+        ret.setLongitudeStatus(BitUtils.getIntWithBit(stateValue, 3));
+        ret.setBesinessStatus(BitUtils.getIntWithBit(stateValue, 4));
+        ret.setLanAndLongAddPluginStatus(BitUtils.getIntWithBit(stateValue, 5));
+        int bit8=BitUtils.getIntWithBit(stateValue, 8);
+        int bit9=BitUtils.getIntWithBit(stateValue, 9);
+        ret.setLoadPassengerStatus(bit8*10+bit9);
+        ret.setOilRoadStatus(BitUtils.getIntWithBit(stateValue, 10));
+        ret.setElectricRoadStatus(BitUtils.getIntWithBit(stateValue, 11));
+        ret.setCarLookStatus(BitUtils.getIntWithBit(stateValue, 12));
+        ret.setDoor1Status(BitUtils.getIntWithBit(stateValue, 13));
+        ret.setDoor2Status(BitUtils.getIntWithBit(stateValue, 14));
+        ret.setDoor3Status(BitUtils.getIntWithBit(stateValue, 15));
+        ret.setDoor4Status(BitUtils.getIntWithBit(stateValue, 16));
+        ret.setDoor5Status(BitUtils.getIntWithBit(stateValue, 17));
+        ret.setgPSLocateStatus(BitUtils.getIntWithBit(stateValue, 18));
+        ret.setBeidouLocateStatus(BitUtils.getIntWithBit(stateValue, 19));
+        ret.setgLONASSLocateStatus(BitUtils.getIntWithBit(stateValue, 20));
+        ret.setGalileoLocateStatus(BitUtils.getIntWithBit(stateValue, 21));
+        return  ret;
+    }
+
+    /**
+     * 解析报警标志信息
+     *
+     * @param ret
+     * @param stateValue
+     * @return
+     */
+    private static LocationInfoUploadMsg configAlarmState(LocationInfoUploadMsg ret, int stateValue) {
+        ret.setEmergentAlarmWarning(BitUtils.getIntWithBit(stateValue, 0));
+        ret.setOverSpeedDriveWarning(BitUtils.getIntWithBit(stateValue, 1));
+        ret.setTiredDriveWarning(BitUtils.getIntWithBit(stateValue, 2));
+        ret.setDangerEarlyWarming(BitUtils.getIntWithBit(stateValue, 3));
+        ret.setGnssFaultWarning(BitUtils.getIntWithBit(stateValue, 4));
+        ret.setGnssWireCutWarning(BitUtils.getIntWithBit(stateValue, 5));
+        ret.setGnssWireSnappedWarning(BitUtils.getIntWithBit(stateValue, 6));
+        ret.setTerminalMainPowerLowWarning(BitUtils.getIntWithBit(stateValue, 7));
+        ret.setTerminalMainPowerLostWarning(BitUtils.getIntWithBit(stateValue, 8));
+        ret.setLcdFaultWarning(BitUtils.getIntWithBit(stateValue, 9));
+        ret.setTssFaultWarning(BitUtils.getIntWithBit(stateValue, 10));
+        ret.setCameraFaultWarning(BitUtils.getIntWithBit(stateValue, 11));
+        ret.setIcCardFaultWarning(BitUtils.getIntWithBit(stateValue, 12));
+        ret.setOverSpeedEarlyWarming(BitUtils.getIntWithBit(stateValue, 13));
+        ret.setTiredEarlyWarming(BitUtils.getIntWithBit(stateValue, 14));
+        ret.setOverDriverTimeCountWarning(BitUtils.getIntWithBit(stateValue, 18));
+        ret.setStopOvertimeWarning(BitUtils.getIntWithBit(stateValue, 19));
+        ret.setInOutTownWarning(BitUtils.getIntWithBit(stateValue, 20));
+        ret.setInOutLineWarning(BitUtils.getIntWithBit(stateValue, 21));
+        ret.setLineDriverTimeWarning(BitUtils.getIntWithBit(stateValue, 22));
+        ret.setLineDeviateWarning(BitUtils.getIntWithBit(stateValue, 23));
+        ret.setVssFaultWarning(BitUtils.getIntWithBit(stateValue, 24));
+        ret.setOilUnusualWarning(BitUtils.getIntWithBit(stateValue, 25));
+        ret.setBeStolenWarning(BitUtils.getIntWithBit(stateValue, 26));
+        ret.setIllegalStartWarning(BitUtils.getIntWithBit(stateValue, 27));
+        ret.setIllegalShiftWarning(BitUtils.getIntWithBit(stateValue, 28));
+        ret.setImpactEarlyWarming(BitUtils.getIntWithBit(stateValue, 29));
+        ret.setOneSideEarlyWarming(BitUtils.getIntWithBit(stateValue, 30));
+        ret.setIllegalOpenDoorWarning(BitUtils.getIntWithBit(stateValue, 31));
+        return ret;
+    }
+
+    /**
+     * 解析附加消息
+     *
+     * @param ret
+     * @param data
+     * @return
+     */
+    private static LocationInfoUploadMsg configLoadAddMsg(LocationInfoUploadMsg ret, byte[] data) {
+        //消息体附加信息：位置信息附加信息的起始位置
+        int startIndex = 28;
+        //消息体长度
+        int msgBodyLength = ret.getMsgHeader().getMsgBodyLength();
+        for (int i = 28; startIndex < msgBodyLength; i++) {
+            //附加消息ID
+            int msgId = ByteUtils.parseIntFromBytes(data, startIndex, 1);
+            //消息内容长度
+            int msgLength = ByteUtils.parseIntFromBytes(data, startIndex + 1, 1);
+            //根据消息ID解析附加信息内容
+            switch (msgId) {
+                // 里程
+                case LocateMsgConsts
+                        .CAR_MAILE_AGE_ID: {
+                    ret.setCarMileage(ByteUtils.parseFloatFromBytes(data, startIndex + 2, msgLength));
+                    break;
+                }
+                //行驶记录功能获取的速度
+                case LocateMsgConsts
+                        .DRIVER_RECORD_SPEED_ID: {
+                    ret.setDriverRecordSpeed(ByteUtils.parseFloatFromBytes(data, startIndex + 2, msgLength));
+                    break;
+                }
+                //需要人工确认报警事件的
+                case LocateMsgConsts
+                        .MANUL_CONFIRM_EVENT_ID: {
+                    ret.setManulConfirmEventId(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength));
+                    break;
+                }
+                //超速报警附加信息
+                case LocateMsgConsts
+                        .OVER_SPEED_ALARM_ID: {
+                    ret.setOverSpeedAddMsg(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength));
+                    break;
+                }
+                //进出区域/路线报警附加信息
+                case LocateMsgConsts
+                        .LINE_ALARM_ID: {
+                    ret.setLineAlarmAddMsgDirection(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength));
+                    break;
+                }
+                //路段行驶时间不足/过长报警附加信息
+                case LocateMsgConsts
+                        .LINE_DRIVER_TIME_ID: {
+                    ret.setLineDriverTimeAddMsgDriverTime(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    break;
+                }
+                //扩展车辆信号状态位
+                case LocateMsgConsts
+                        .EXTEND_CAR_SIGNAL_ID: {
+                    ret.setExtendCardSignal(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    break;
+                }
+                //IO状态位
+                case LocateMsgConsts
+                        .IO_STATUS_ID
+                        : {
+                    ret.setIoStateBit(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    break;
+                }
+                //模拟量
+                case LocateMsgConsts
+                        .ANALOG_QUANLITY_ID: {
+                    ret.setAnalogQuanlity(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    break;
+                }
+                //无线通信网络信号强度
+                case LocateMsgConsts
+                        .WIRELESS_SIGNAL_ID: {
+                    ret.setWirelessSignalStrength(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    break;
+                }
+                //GNSS 定位卫星数
+                case LocateMsgConsts
+                        .GNSS_STARTS_TOTAL_ID: {
+                    ret.setGNSSLocateStartTotal(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    break;
+                }
+                //后续自定义信息长度
+                case LocateMsgConsts
+                        .CUSTOMER_LENGTH_ID: {
+                    ret.setCustomLength(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength));
+                    break;
+                }
+                default: {
+                    LOGGER.info("execute in default");
+                }
+            }
+            //startIndex 为data[]数组下标地址
+            startIndex += msgLength + 2;
+            LOGGER.info("----------startIndex is--->:" + startIndex + ",msgId:" + msgId);
+        }
+        return ret;
+    }
+
 
     //将纬度经度的整形值转换为double
     private static double parseIntToLocateData(int d) {
         BigDecimal d1 = new BigDecimal(Integer.toString(d));
         BigDecimal d2 = new BigDecimal(Integer.toString(1000000));
         // 四舍五入,保留6位小数
-        return d1.divide(d2,6,BigDecimal.ROUND_HALF_UP).doubleValue();
+        return d1.divide(d2, 6, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
-
 
 
     /**
@@ -221,20 +400,21 @@ public class MsgDecoderUtils {
         final byte[] data = ret.getMsgBodyBytes();
 
         //2.解析参数
-        TerminalCommonResponeBody msgBody=new TerminalCommonResponeBody();
-        msgBody.setFlowId(ByteUtils.parseIntFromBytes(data,0,2));
-        msgBody.setReplyId(ByteUtils.parseIntFromBytes(data,2,2));
-        msgBody.setReplyCode(ByteUtils.parseIntFromBytes(data,4,1));
+        TerminalCommonResponeBody msgBody = new TerminalCommonResponeBody();
+        msgBody.setFlowId(ByteUtils.parseIntFromBytes(data, 0, 2));
+        msgBody.setReplyId(ByteUtils.parseIntFromBytes(data, 2, 2));
+        msgBody.setReplyCode(ByteUtils.parseIntFromBytes(data, 4, 1));
         //3.返回解析后的位置数据LocationInfoUploadMsg
         return msgBody;
     }
 
     /**
-     *  解析查询终端属性应答信息
+     * 解析查询终端属性应答信息
+     *
      * @param packageData
      * @return
      */
-    public static TerminalPropertiesReplyMsg toTerminalPropertiesReplyMsg(PackageData packageData){
+    public static TerminalPropertiesReplyMsg toTerminalPropertiesReplyMsg(PackageData packageData) {
         //1.从终端数据包中截取消息体
         TerminalPropertiesReplyMsg ret = new TerminalPropertiesReplyMsg(packageData);
         final byte[] data = ret.getMsgBodyBytes();
