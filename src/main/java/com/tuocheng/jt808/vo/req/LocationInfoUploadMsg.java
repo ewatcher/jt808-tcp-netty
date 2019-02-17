@@ -97,6 +97,11 @@ public class LocationInfoUploadMsg extends PackageData {
      */
     private int overSpeedAddMsgRoadId;
 
+    /**
+     * 0x12 6 进出区域/路线报警附加信息:位置类型
+     * 1:圆形区域;2:矩形区域;3:多边形区域;4:路段
+     */
+    private int lineAlarmAddMsg;
 
     /**
      * 0x12 6 进出区域/路线报警附加信息:位置类型
@@ -108,10 +113,14 @@ public class LocationInfoUploadMsg extends PackageData {
      */
     private int lineAlarmAddMsgRoadId;
     /**
-     * 0x12 6 进出区域/路线报警附加信息:BYTE(0:进;1:出)
+     * 0x12 6 进出区域/路线报警附加信息:方向 BYTE(0:进;1:出)
      */
     private int lineAlarmAddMsgDirection;
 
+    /**
+     * 0x13 7 路段行驶时间不足/过长报警附加信息
+     */
+    private int lineDriverTimeAddMsg;
     /**
      * 0x13 7 路段行驶时间不足/过长报警附加信息:路段 ID(DWORD)
      */
@@ -129,11 +138,79 @@ public class LocationInfoUploadMsg extends PackageData {
      * 0x25 4 扩展车辆信号状态位
      */
     private String extendCardSignal;
+    /**
+     * 0x25 4 扩展车辆信号状态位:近光灯 0
+     */
+    private String extendCardSignalNearLight;
+    /**
+     * 0x25 4 扩展车辆信号状态位:远光灯信号 1
+     */
+    private String extendCardSignalFarLight;
+    /**
+     * 0x25 4 扩展车辆信号状态位:右转向灯信号 2
+     */
+    private String extendCardSignalRightLight;
+    /**
+     * 0x25 4 扩展车辆信号状态位:左转向灯信号 3
+     */
+    private String extendCardSignalLeftLight;
+    /**
+     * 0x25 4 扩展车辆信号状态位:制动信号 4
+     */
+    private String extendCardSignalBrak;
+    /**
+     * 0x25 4 扩展车辆信号状态位:倒档信号 5
+     */
+    private String extendCardSignalRevert;
+    /**
+     * 0x25 4 扩展车辆信号状态位: 雾灯信号 6
+     */
+    private String extendCardSignalFogLight;
+    /**
+     * 0x25 4 扩展车辆信号状态位:示廓灯 7
+     */
+    private String extendCardSignalOutlineLight;
+    /**
+     * 0x25 4 扩展车辆信号状态位: 喇叭信号 8
+     */
+    private String extendCardSignalSpeeker;
+    /**
+     * 0x25 4 扩展车辆信号状态位:空调状态 9
+     */
+    private String extendCardSignalAirCodition;
+    /**
+     * 0x25 4 扩展车辆信号状态位:空挡信号 10
+     */
+    private String extendCardSignalNeutral;
+    /**
+     * 0x25 4 扩展车辆信号状态位:缓速器工作 11
+     */
+    private String extendCardSignalRetarder;
+    /**
+     * 0x25 4 扩展车辆信号状态位:ABS 工作 12
+     */
+    private String extendCardSignalABS;
+    /**
+     * 0x25 4 扩展车辆信号状态位:加热器工作 13
+     */
+    private String extendCardSignalHeater;
+    /**
+     * 0x25 4 扩展车辆信号状态位:离合器状态 14
+     */
+    private String extendCardSignalClutch;
 
     /**
      * 0x2A IO状态位
      */
     private String ioStateBit;
+    /**
+     * 0x2A IO状态位:深度休眠状态 0
+     */
+    private String ioStateDeepDormant;
+    /**
+     * 0x2A IO状态位:休眠状态 1
+     */
+    private String ioStateBitDormant;
 
     /**
      * 0x2B 4 模拟量,bit0-15,AD0;bit16-31,AD1。
@@ -415,6 +492,158 @@ public class LocationInfoUploadMsg extends PackageData {
         this.checkSum = packageData.getCheckSum();
         this.msgBodyBytes = packageData.getMsgBodyBytes();
         this.msgHeader = packageData.getMsgHeader();
+    }
+
+    public String getIoStateDeepDormant() {
+        return ioStateDeepDormant;
+    }
+
+    public void setIoStateDeepDormant(String ioStateDeepDormant) {
+        this.ioStateDeepDormant = ioStateDeepDormant;
+    }
+
+    public String getIoStateBitDormant() {
+        return ioStateBitDormant;
+    }
+
+    public void setIoStateBitDormant(String ioStateBitDormant) {
+        this.ioStateBitDormant = ioStateBitDormant;
+    }
+
+    public String getExtendCardSignalNearLight() {
+        return extendCardSignalNearLight;
+    }
+
+    public void setExtendCardSignalNearLight(String extendCardSignalNearLight) {
+        this.extendCardSignalNearLight = extendCardSignalNearLight;
+    }
+
+    public String getExtendCardSignalFarLight() {
+        return extendCardSignalFarLight;
+    }
+
+    public void setExtendCardSignalFarLight(String extendCardSignalFarLight) {
+        this.extendCardSignalFarLight = extendCardSignalFarLight;
+    }
+
+    public String getExtendCardSignalRightLight() {
+        return extendCardSignalRightLight;
+    }
+
+    public void setExtendCardSignalRightLight(String extendCardSignalRightLight) {
+        this.extendCardSignalRightLight = extendCardSignalRightLight;
+    }
+
+    public String getExtendCardSignalLeftLight() {
+        return extendCardSignalLeftLight;
+    }
+
+    public void setExtendCardSignalLeftLight(String extendCardSignalLeftLight) {
+        this.extendCardSignalLeftLight = extendCardSignalLeftLight;
+    }
+
+    public String getExtendCardSignalBrak() {
+        return extendCardSignalBrak;
+    }
+
+    public void setExtendCardSignalBrak(String extendCardSignalBrak) {
+        this.extendCardSignalBrak = extendCardSignalBrak;
+    }
+
+    public String getExtendCardSignalRevert() {
+        return extendCardSignalRevert;
+    }
+
+    public void setExtendCardSignalRevert(String extendCardSignalRevert) {
+        this.extendCardSignalRevert = extendCardSignalRevert;
+    }
+
+    public String getExtendCardSignalFogLight() {
+        return extendCardSignalFogLight;
+    }
+
+    public void setExtendCardSignalFogLight(String extendCardSignalFogLight) {
+        this.extendCardSignalFogLight = extendCardSignalFogLight;
+    }
+
+    public String getExtendCardSignalOutlineLight() {
+        return extendCardSignalOutlineLight;
+    }
+
+    public void setExtendCardSignalOutlineLight(String extendCardSignalOutlineLight) {
+        this.extendCardSignalOutlineLight = extendCardSignalOutlineLight;
+    }
+
+    public String getExtendCardSignalSpeeker() {
+        return extendCardSignalSpeeker;
+    }
+
+    public void setExtendCardSignalSpeeker(String extendCardSignalSpeeker) {
+        this.extendCardSignalSpeeker = extendCardSignalSpeeker;
+    }
+
+    public String getExtendCardSignalAirCodition() {
+        return extendCardSignalAirCodition;
+    }
+
+    public void setExtendCardSignalAirCodition(String extendCardSignalAirCodition) {
+        this.extendCardSignalAirCodition = extendCardSignalAirCodition;
+    }
+
+    public String getExtendCardSignalNeutral() {
+        return extendCardSignalNeutral;
+    }
+
+    public void setExtendCardSignalNeutral(String extendCardSignalNeutral) {
+        this.extendCardSignalNeutral = extendCardSignalNeutral;
+    }
+
+    public String getExtendCardSignalRetarder() {
+        return extendCardSignalRetarder;
+    }
+
+    public void setExtendCardSignalRetarder(String extendCardSignalRetarder) {
+        this.extendCardSignalRetarder = extendCardSignalRetarder;
+    }
+
+    public String getExtendCardSignalABS() {
+        return extendCardSignalABS;
+    }
+
+    public void setExtendCardSignalABS(String extendCardSignalABS) {
+        this.extendCardSignalABS = extendCardSignalABS;
+    }
+
+    public String getExtendCardSignalHeater() {
+        return extendCardSignalHeater;
+    }
+
+    public void setExtendCardSignalHeater(String extendCardSignalHeater) {
+        this.extendCardSignalHeater = extendCardSignalHeater;
+    }
+
+    public String getExtendCardSignalClutch() {
+        return extendCardSignalClutch;
+    }
+
+    public void setExtendCardSignalClutch(String extendCardSignalClutch) {
+        this.extendCardSignalClutch = extendCardSignalClutch;
+    }
+
+    public int getLineDriverTimeAddMsg() {
+        return lineDriverTimeAddMsg;
+    }
+
+    public void setLineDriverTimeAddMsg(int lineDriverTimeAddMsg) {
+        this.lineDriverTimeAddMsg = lineDriverTimeAddMsg;
+    }
+
+    public int getLineAlarmAddMsg() {
+        return lineAlarmAddMsg;
+    }
+
+    public void setLineAlarmAddMsg(int lineAlarmAddMsg) {
+        this.lineAlarmAddMsg = lineAlarmAddMsg;
     }
 
     public int getAccStatus() {
@@ -1048,13 +1277,30 @@ public class LocationInfoUploadMsg extends PackageData {
                 ", overSpeedAddMsg=" + overSpeedAddMsg +
                 ", overSpeedAddMsgLocateType=" + overSpeedAddMsgLocateType +
                 ", overSpeedAddMsgRoadId=" + overSpeedAddMsgRoadId +
+                ", lineAlarmAddMsg=" + lineAlarmAddMsg +
                 ", lineAlarmAddMsgType=" + lineAlarmAddMsgType +
                 ", lineAlarmAddMsgRoadId=" + lineAlarmAddMsgRoadId +
                 ", lineAlarmAddMsgDirection=" + lineAlarmAddMsgDirection +
+                ", lineDriverTimeAddMsg=" + lineDriverTimeAddMsg +
                 ", lineDriverTimeAddMsgRoadId=" + lineDriverTimeAddMsgRoadId +
                 ", lineDriverTimeAddMsgDriverTime='" + lineDriverTimeAddMsgDriverTime + '\'' +
                 ", lineDriverTimeAddMsgResult=" + lineDriverTimeAddMsgResult +
                 ", extendCardSignal='" + extendCardSignal + '\'' +
+                ", extendCardSignalNearLight='" + extendCardSignalNearLight + '\'' +
+                ", extendCardSignalFarLight='" + extendCardSignalFarLight + '\'' +
+                ", extendCardSignalRightLight='" + extendCardSignalRightLight + '\'' +
+                ", extendCardSignalLeftLight='" + extendCardSignalLeftLight + '\'' +
+                ", extendCardSignalBrak='" + extendCardSignalBrak + '\'' +
+                ", extendCardSignalRevert='" + extendCardSignalRevert + '\'' +
+                ", extendCardSignalFogLight='" + extendCardSignalFogLight + '\'' +
+                ", extendCardSignalOutlineLight='" + extendCardSignalOutlineLight + '\'' +
+                ", extendCardSignalSpeeker='" + extendCardSignalSpeeker + '\'' +
+                ", extendCardSignalAirCodition='" + extendCardSignalAirCodition + '\'' +
+                ", extendCardSignalNeutral='" + extendCardSignalNeutral + '\'' +
+                ", extendCardSignalRetarder='" + extendCardSignalRetarder + '\'' +
+                ", extendCardSignalABS='" + extendCardSignalABS + '\'' +
+                ", extendCardSignalHeater='" + extendCardSignalHeater + '\'' +
+                ", extendCardSignalClutch='" + extendCardSignalClutch + '\'' +
                 ", ioStateBit='" + ioStateBit + '\'' +
                 ", analogQuanlity='" + analogQuanlity + '\'' +
                 ", wirelessSignalStrength='" + wirelessSignalStrength + '\'' +
@@ -1108,6 +1354,8 @@ public class LocationInfoUploadMsg extends PackageData {
                 ", beidouLocateStatus=" + beidouLocateStatus +
                 ", gLONASSLocateStatus=" + gLONASSLocateStatus +
                 ", GalileoLocateStatus=" + GalileoLocateStatus +
+                ", ioStateDeepDormant=" + ioStateDeepDormant +
+                ", ioStateBitDormant=" + ioStateBitDormant +
                 '}';
     }
 }

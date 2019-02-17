@@ -420,16 +420,6 @@ public class BitUtils {
         return Integer.parseInt(sb.reverse().toString(), 2);
     }
 
-    public static void main(String[] args)
-    {
-        int num = 786626;
-        String binaryString = Integer.toBinaryString(num);
-        System.out.println(binaryString);
-        for (int i = 0; i < binaryString.getBytes().length; i++)
-        {
-            System.out.print(getIntWithBit(num, i) + "\t");
-        }
-    }
 
     /**
      * 获取指定的int型数据中某一位的二进制值

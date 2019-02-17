@@ -2,11 +2,10 @@ package com.tuocheng.jt808.service.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.tuocheng.jt808.util.HexStringUtils;
-import com.tuocheng.jt808.util.JT808ProtocolUtils;
-import com.tuocheng.jt808.util.MsgDecoderUtils;
+import com.tuocheng.jt808.util.*;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.req.*;
+import jdk.internal.org.objectweb.asm.tree.analysis.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +20,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
+
+import java.util.List;
 
 public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
@@ -404,9 +405,21 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
 
     private void terminalLocateBatUpload(PackageData packageData, MsgHeader header) {
         LOGGER.info(">>>>>[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
-        //TODO
-        LOGGER.info("批量信息:{}", JSON.toJSONString(header, true));
-        LOGGER.info("<<<<<[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+        try {
+            List<LocationInfoUploadMsg> locationInfoBatUploadMsgs = MsgDecoderUtils.toLocationInfoBatUploadMsg(packageData);
+            if(ValidateUtil.isValidListObject(locationInfoBatUploadMsgs)){
+                for (LocationInfoUploadMsg locationInfoUploadMsg:locationInfoBatUploadMsgs
+                     ) {
+                    this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
+                }
+            }
+            LOGGER.info("<<<<<[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
+        } catch (Exception e) {
+            LOGGER.error("<<<<<[位批量上传位置信息]处理错误,phone={},flowid={},err={}", header.getTerminalPhone(), header.getFlowId(),
+                    e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 
 

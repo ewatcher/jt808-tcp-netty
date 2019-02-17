@@ -1,5 +1,6 @@
 package com.tuocheng.jt808.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tuocheng.jt808.common.LocateMsgConsts;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.PackageData;
@@ -9,7 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * =================================
@@ -159,6 +162,91 @@ public class MsgDecoderUtils {
     }
 
 
+    public static List<LocationInfoUploadMsg> toLocationInfoBatUploadMsg(PackageData packageData) {
+        byte[] msgBodey = packageData.getMsgBodyBytes();
+        LOGGER.info("批量信息 消息体:{}", HexStringUtils.toHexString(msgBodey));
+        byte[] properties = new byte[5];
+        System.arraycopy(msgBodey, 0, properties, 0, 5);
+        //数据项目个数
+        int itemTotal = ByteUtils.parseIntFromBytes(properties, 0, 2);
+        //位置数据类型
+        int locateType = ByteUtils.parseIntFromBytes(properties, 2, 1);
+        //位置汇报数据体长度
+        int locateLength = ByteUtils.parseIntFromBytes(properties, 3, 2);
+        //消息体长度
+        int msgBodyLength = packageData.getMsgHeader().getMsgBodyLength();
+
+        BatLocateMsg batLocateMsg = new BatLocateMsg();
+        batLocateMsg.setDataItemTotal(itemTotal);
+        batLocateMsg.setLocateDataType(locateType);
+        batLocateMsg.setLocateDateBodyLength(locateLength);
+        LOGGER.info("批量信息：{}", JSONObject.toJSONString(batLocateMsg, true));
+        LOGGER.info("--->msgBodyLength:{}", packageData.getMsgHeader().getMsgBodyLength());
+
+
+        byte[] locateData = null;
+        LocationInfoUploadMsg ret = null;
+        List<LocationInfoUploadMsg> retLists = new ArrayList<LocationInfoUploadMsg>();
+        for (int i = 0; i < itemTotal; i++) {
+            locateData = new byte[locateLength];
+            if (1 == i) {
+                System.arraycopy(msgBodey, 5, locateData, 0, locateLength);
+            } else {
+                System.arraycopy(msgBodey, locateLength + 5 + 2, locateData, 0, locateLength);
+            }
+            LOGGER.info("位置信息{}：{}", i, HexStringUtils.toHexString(locateData));
+            //解析数据信息
+            PackageData packageDataRet = new PackageData();
+            packageDataRet.setChannel(packageData.getChannel());
+            packageDataRet.setCheckSum(packageData.getCheckSum());
+            MsgHeader msgHeader = packageData.getMsgHeader();
+            msgHeader.setMsgBodyLength(locateLength);
+            packageDataRet.setMsgHeader(msgHeader);
+            packageDataRet.setMsgBodyBytes(locateData);
+            ret = new LocationInfoUploadMsg(packageDataRet);
+            LOGGER.info("LocationInfoUploadMsg {}：{}", i, ret);
+            //2.解析参数
+            // 2.1  byte[0-3] 报警标志(DWORD(32))
+            int state = ByteUtils.parseIntFromBytes(locateData, 0, 4);
+            //解析报警状态
+            ret.setWarningFlagField(state);
+            configAlarmState(ret, state);
+
+            // 2.2. byte[4-7] 状态(DWORD(32))
+            int statusState = ByteUtils.parseIntFromBytes(locateData, 4, 4);
+            ret.setStatusField(statusState);
+            //解析状态
+            configStatus(ret, statusState);
+
+            // 2.3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
+            ret.setLatitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(locateData, 8, 4)));
+            // 2.4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
+            ret.setLongitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(locateData, 12, 4)));
+            // 2.5. byte[16-17] 高程(WORD(16)) 海拔高度，单位为米（ m）
+            ret.setElevation(ByteUtils.parseIntFromBytes(locateData, 16, 2));
+            // 2.6 byte[18-19] 速度(WORD) 1/10km/h
+            ret.setSpeed(ByteUtils.parseFloatFromBytes(locateData, 18, 2));
+            // 2.7 byte[20-21] 方向(WORD) 0-359，正北为 0，顺时针
+            ret.setDirection(ByteUtils.parseIntFromBytes(locateData, 20, 2));
+            // 2.8 byte[22-x] 时间(BCD[6]) YY-MM-DD-hh-mm-ss
+            byte[] tmp = new byte[6];
+            System.arraycopy(locateData, 22, tmp, 0, 6);
+            String time = ByteUtils.parseBcdStringFromBytes(locateData, 22, 6);
+            ret.setGpsTime("20" + time);
+            ret.setUploadTime(MyDateUtils.longToString(System.currentTimeMillis(), "YYYYMMddHHmmss"));
+            //解析附加消息
+            configLoadAddMsg(ret, locateData);
+            retLists.add(ret);
+
+
+        }
+        if (ValidateUtil.isValidListObject(retLists)) {
+            return retLists;
+        }
+        return null;
+    }
+
+
     /**
      * 4)解析终端位置信息汇报数据包
      *
@@ -171,13 +259,13 @@ public class MsgDecoderUtils {
         final byte[] data = ret.getMsgBodyBytes();
         //2.解析参数
         // 2.1  byte[0-3] 报警标志(DWORD(32))
-        int state=ByteUtils.parseIntFromBytes(data, 0, 4);
+        int state = ByteUtils.parseIntFromBytes(data, 0, 4);
         //解析报警状态
         ret.setWarningFlagField(state);
         configAlarmState(ret, state);
 
         // 2.2. byte[4-7] 状态(DWORD(32))
-        int statusState=ByteUtils.parseIntFromBytes(data, 4, 4);
+        int statusState = ByteUtils.parseIntFromBytes(data, 4, 4);
         ret.setStatusField(statusState);
         //解析状态
         configStatus(ret, statusState);
@@ -206,6 +294,7 @@ public class MsgDecoderUtils {
 
     /**
      * 解析状态信息
+     *
      * @param ret
      * @param stateValue
      * @return
@@ -217,9 +306,9 @@ public class MsgDecoderUtils {
         ret.setLongitudeStatus(BitUtils.getIntWithBit(stateValue, 3));
         ret.setBesinessStatus(BitUtils.getIntWithBit(stateValue, 4));
         ret.setLanAndLongAddPluginStatus(BitUtils.getIntWithBit(stateValue, 5));
-        int bit8=BitUtils.getIntWithBit(stateValue, 8);
-        int bit9=BitUtils.getIntWithBit(stateValue, 9);
-        ret.setLoadPassengerStatus(bit8*10+bit9);
+        int bit8 = BitUtils.getIntWithBit(stateValue, 8);
+        int bit9 = BitUtils.getIntWithBit(stateValue, 9);
+        ret.setLoadPassengerStatus(bit8 * 10 + bit9);
         ret.setOilRoadStatus(BitUtils.getIntWithBit(stateValue, 10));
         ret.setElectricRoadStatus(BitUtils.getIntWithBit(stateValue, 11));
         ret.setCarLookStatus(BitUtils.getIntWithBit(stateValue, 12));
@@ -232,7 +321,7 @@ public class MsgDecoderUtils {
         ret.setBeidouLocateStatus(BitUtils.getIntWithBit(stateValue, 19));
         ret.setgLONASSLocateStatus(BitUtils.getIntWithBit(stateValue, 20));
         ret.setGalileoLocateStatus(BitUtils.getIntWithBit(stateValue, 21));
-        return  ret;
+        return ret;
     }
 
     /**
@@ -315,32 +404,111 @@ public class MsgDecoderUtils {
                 //超速报警附加信息
                 case LocateMsgConsts
                         .OVER_SPEED_ALARM_ID: {
-                    ret.setOverSpeedAddMsg(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength));
+                    byte[] temp = new byte[msgLength];
+                    System.arraycopy(data, startIndex + 2, temp, 0, msgLength);
+                    int overSpeedData = ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength);
+                    ret.setOverSpeedAddMsg(overSpeedData);
+                    //位置类型
+                    int locateType = ByteUtils.parseIntFromBytes(temp, 0, 1);
+                    ret.setOverSpeedAddMsgLocateType(locateType);
+                    //区域或路段 ID
+                    int lineID = ByteUtils.parseIntFromBytes(temp, 1, 1);
+                    if (0 == locateType) {
+                        ret.setOverSpeedAddMsgRoadId(0);
+                    } else {
+                        ret.setOverSpeedAddMsgRoadId(lineID);
+                    }
+                    LOGGER.info("------>超速报警附加信息:byte[]=" + HexStringUtils.toHexString(temp));
+                    LOGGER.info("------>overSpeedData:" + overSpeedData + ",locateType:" + locateType + ",lineID:" + lineID);
                     break;
                 }
                 //进出区域/路线报警附加信息
                 case LocateMsgConsts
                         .LINE_ALARM_ID: {
-                    ret.setLineAlarmAddMsgDirection(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength));
+                    byte[] temp = new byte[msgLength];
+                    System.arraycopy(data, startIndex + 2, temp, 0, msgLength);
+                    int lineAlarm = ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength);
+                    ret.setLineAlarmAddMsg(lineAlarm);
+                    //位置类型
+                    int locateType = ByteUtils.parseIntFromBytes(temp, 0, 1);
+                    ret.setLineAlarmAddMsgType(locateType);
+                    //区域或线路 ID
+                    int lineId = ByteUtils.parseIntFromBytes(temp, 1, 4);
+                    ret.setLineAlarmAddMsgRoadId(lineId);
+                    //方向
+                    int direction = ByteUtils.parseIntFromBytes(temp, 5, 1);
+                    ret.setLineAlarmAddMsgDirection(direction);
+                    LOGGER.info("------>进出区域/路线报警附加信息:byte[]=" + HexStringUtils.toHexString(temp));
+                    LOGGER.info("------>lineId:" + lineId + ",locateType:" + locateType + ",direction:" + direction);
                     break;
                 }
                 //路段行驶时间不足/过长报警附加信息
                 case LocateMsgConsts
                         .LINE_DRIVER_TIME_ID: {
-                    ret.setLineDriverTimeAddMsgDriverTime(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    byte[] temp = new byte[msgLength];
+                    System.arraycopy(data, startIndex + 2, temp, 0, msgLength);
+                    int lineAlarm = ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength);
+                    ret.setLineDriverTimeAddMsg(lineAlarm);
+                    //路段 ID
+                    int lineId = ByteUtils.parseIntFromBytes(temp, 0, 1);
+                    ret.setLineDriverTimeAddMsgRoadId(lineId);
+                    //路段行驶时间
+                    int time = ByteUtils.parseIntFromBytes(temp, 1, 4);
+                    ret.setLineDriverTimeAddMsgDriverTime(time + "");
+                    //结果
+                    int result = ByteUtils.parseIntFromBytes(temp, 5, 2);
+                    ret.setLineDriverTimeAddMsgResult(result);
+                    LOGGER.info("------>路段行驶时间不足/过长报警附加信息:byte[]=" + HexStringUtils.toHexString(temp));
+                    LOGGER.info("------>lineId:" + lineId + ",time:" + time + ",result:" + result);
                     break;
                 }
                 //扩展车辆信号状态位
                 case LocateMsgConsts
                         .EXTEND_CAR_SIGNAL_ID: {
-                    ret.setExtendCardSignal(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    int carSignal = ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength);
+                    ret.setExtendCardSignal(carSignal + "");
+                    //近光灯 0
+                    ret.setExtendCardSignalNearLight(BitUtils.getIntWithBit(carSignal, 0) + "");
+                    //远光灯信号 1
+                    ret.setExtendCardSignalFarLight(BitUtils.getIntWithBit(carSignal, 1) + "");
+                    //右转向灯信号 2
+                    ret.setExtendCardSignalRightLight(BitUtils.getIntWithBit(carSignal, 2) + "");
+                    //左转向灯信号 3
+                    ret.setExtendCardSignalLeftLight(BitUtils.getIntWithBit(carSignal, 3) + "");
+                    //制动信号 4
+                    ret.setExtendCardSignalBrak(BitUtils.getIntWithBit(carSignal, 4) + "");
+                    //倒档信号 5
+                    ret.setExtendCardSignalRevert(BitUtils.getIntWithBit(carSignal, 5) + "");
+                    //雾灯信号 6
+                    ret.setExtendCardSignalFogLight(BitUtils.getIntWithBit(carSignal, 6) + "");
+                    //示廓灯 7
+                    ret.setExtendCardSignalOutlineLight(BitUtils.getIntWithBit(carSignal, 7) + "");
+                    //喇叭信号 8
+                    ret.setExtendCardSignalSpeeker(BitUtils.getIntWithBit(carSignal, 8) + "");
+                    //空调状态 9
+                    ret.setExtendCardSignalAirCodition(BitUtils.getIntWithBit(carSignal, 9) + "");
+                    //空挡信号 10
+                    ret.setExtendCardSignalNeutral(BitUtils.getIntWithBit(carSignal, 10) + "");
+                    //缓速器工作 11
+                    ret.setExtendCardSignalRetarder(BitUtils.getIntWithBit(carSignal, 11) + "");
+                    //ABS 工作 12
+                    ret.setExtendCardSignalABS(BitUtils.getIntWithBit(carSignal, 12) + "");
+                    //加热器工作 13
+                    ret.setExtendCardSignalHeater(BitUtils.getIntWithBit(carSignal, 13) + "");
+                    //离合器状态 14
+                    ret.setExtendCardSignalClutch(BitUtils.getIntWithBit(carSignal, 14) + "");
                     break;
                 }
                 //IO状态位
                 case LocateMsgConsts
                         .IO_STATUS_ID
                         : {
-                    ret.setIoStateBit(ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength) + "");
+                    int ioState = ByteUtils.parseIntFromBytes(data, startIndex + 2, msgLength);
+                    ret.setIoStateBit(ioState + "");
+                    //深度休眠状态
+                    ret.setIoStateDeepDormant(BitUtils.getIntWithBit(ioState, 0) + "");
+                    //休眠状态
+                    ret.setIoStateBitDormant(BitUtils.getIntWithBit(ioState, 1) + "");
                     break;
                 }
                 //模拟量
@@ -373,7 +541,6 @@ public class MsgDecoderUtils {
             }
             //startIndex 为data[]数组下标地址
             startIndex += msgLength + 2;
-            LOGGER.info("----------startIndex is--->:" + startIndex + ",msgId:" + msgId);
         }
         return ret;
     }
