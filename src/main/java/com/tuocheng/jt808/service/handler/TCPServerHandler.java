@@ -408,10 +408,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         try {
             List<LocationInfoUploadMsg> locationInfoBatUploadMsgs = MsgDecoderUtils.toLocationInfoBatUploadMsg(packageData);
             if(ValidateUtil.isValidListObject(locationInfoBatUploadMsgs)){
-                for (LocationInfoUploadMsg locationInfoUploadMsg:locationInfoBatUploadMsgs
-                     ) {
-                    this.msgProcessService.processLocationInfoUploadMsg(locationInfoUploadMsg);
-                }
+                this.msgProcessService.processLocationInfoUploadMsg(locationInfoBatUploadMsgs.get(0));
             }
             LOGGER.info("<<<<<[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
         } catch (Exception e) {

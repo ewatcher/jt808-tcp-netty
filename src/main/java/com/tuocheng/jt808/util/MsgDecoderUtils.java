@@ -173,28 +173,35 @@ public class MsgDecoderUtils {
         int locateType = ByteUtils.parseIntFromBytes(properties, 2, 1);
         //位置汇报数据体长度
         int locateLength = ByteUtils.parseIntFromBytes(properties, 3, 2);
-        //消息体长度
-        int msgBodyLength = packageData.getMsgHeader().getMsgBodyLength();
 
         BatLocateMsg batLocateMsg = new BatLocateMsg();
         batLocateMsg.setDataItemTotal(itemTotal);
         batLocateMsg.setLocateDataType(locateType);
         batLocateMsg.setLocateDateBodyLength(locateLength);
-        LOGGER.info("批量信息：{}", JSONObject.toJSONString(batLocateMsg, true));
+        LOGGER.info("位置批量信息属性：{}", JSONObject.toJSONString(batLocateMsg, true));
         LOGGER.info("--->msgBodyLength:{}", packageData.getMsgHeader().getMsgBodyLength());
-
 
         byte[] locateData = null;
         LocationInfoUploadMsg ret = null;
         List<LocationInfoUploadMsg> retLists = new ArrayList<LocationInfoUploadMsg>();
+        int startIndex=0;
         for (int i = 0; i < itemTotal; i++) {
             locateData = new byte[locateLength];
-            if (1 == i) {
+            if (0 == i) {
                 System.arraycopy(msgBodey, 5, locateData, 0, locateLength);
             } else {
-                System.arraycopy(msgBodey, locateLength + 5 + 2, locateData, 0, locateLength);
+                if(1==i){
+                    //5+60+2
+                    startIndex+=67;
+                }else{
+                    //60+2
+                    startIndex+=62;
+                }
+                System.arraycopy(msgBodey, startIndex, locateData, 0, locateLength);
             }
-            LOGGER.info("位置信息{}：{}", i, HexStringUtils.toHexString(locateData));
+
+            LOGGER.info("位置信息{}：{},", i, HexStringUtils.toHexString(locateData));
+            LOGGER.info("位置信息{}：startIndex:{},", i, startIndex);
             //解析数据信息
             PackageData packageDataRet = new PackageData();
             packageDataRet.setChannel(packageData.getChannel());
@@ -235,7 +242,7 @@ public class MsgDecoderUtils {
             ret.setGpsTime("20" + time);
             ret.setUploadTime(MyDateUtils.longToString(System.currentTimeMillis(), "YYYYMMddHHmmss"));
             //解析附加消息
-            configLoadAddMsg(ret, locateData);
+          //  configLoadAddMsg(ret, locateData);
             retLists.add(ret);
 
 
