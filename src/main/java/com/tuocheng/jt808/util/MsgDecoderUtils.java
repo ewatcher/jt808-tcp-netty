@@ -1,5 +1,6 @@
 package com.tuocheng.jt808.util;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.tuocheng.jt808.common.LocateMsgConsts;
 import com.tuocheng.jt808.vo.MsgHeader;
@@ -146,25 +147,30 @@ public class MsgDecoderUtils {
         body.setManufacturerId(ByteUtils.parseStringFromBytes(data, 4, 5));
 
         // 2.4. byte[9-16] 终端型号(BYTE[8]) 八个字节， 此终端型号 由制造商自行定义 位数不足八位的，补空格。
-        body.setTerminalType(ByteUtils.parseStringFromBytes(data, 9, 8));
+        body.setTerminalType(ByteUtils.parseStringFromBytes(data, 9, 20));
 
         // 2.5. byte[17-23] 终端ID(BYTE[7]) 七个字节， 由大写字母 和数字组成， 此终端 ID由制造 商自行定义
-        body.setTerminalId(ByteUtils.parseStringFromBytes(data, 17, 7));
+        body.setTerminalId(ByteUtils.parseStringFromBytes(data, 29, 7));
 
         // 2.6. byte[24] 车牌颜色(BYTE) 车牌颜 色按照JT/T415-2006 中5.4.12 的规定
-        body.setLicensePlateColor(ByteUtils.parseIntFromBytes(data, 24, 1));
+        body.setLicensePlateColor(ByteUtils.parseIntFromBytes(data, 36, 1));
 
         // 2.7. byte[25-x] 车牌(STRING) 公安交 通管理部门颁 发的机动车号牌
-        body.setLicensePlate(ByteUtils.parseStringFromBytes(data, 25, data.length - 25));
+        body.setLicensePlate(ByteUtils.parseStringFromBytes(data, 37, data.length - 37));
         ret.setTerminalRegInfo(body);
         //3.返回
         return ret;
     }
 
 
+    /**
+     * 解析位置批量上传
+     * @param packageData
+     * @return
+     */
     public static List<LocationInfoUploadMsg> toLocationInfoBatUploadMsg(PackageData packageData) {
         byte[] msgBodey = packageData.getMsgBodyBytes();
-        LOGGER.info("批量信息 消息体:{}", HexStringUtils.toHexString(msgBodey));
+        //LOGGER.info("批量信息 消息体:{}", HexStringUtils.toHexString(msgBodey));
         byte[] properties = new byte[5];
         System.arraycopy(msgBodey, 0, properties, 0, 5);
         //数据项目个数
@@ -179,29 +185,25 @@ public class MsgDecoderUtils {
         batLocateMsg.setLocateDataType(locateType);
         batLocateMsg.setLocateDateBodyLength(locateLength);
         LOGGER.info("位置批量信息属性：{}", JSONObject.toJSONString(batLocateMsg, true));
-        LOGGER.info("--->msgBodyLength:{}", packageData.getMsgHeader().getMsgBodyLength());
 
         byte[] locateData = null;
         LocationInfoUploadMsg ret = null;
         List<LocationInfoUploadMsg> retLists = new ArrayList<LocationInfoUploadMsg>();
-        int startIndex=0;
+        int startIndex = 0;
         for (int i = 0; i < itemTotal; i++) {
             locateData = new byte[locateLength];
             if (0 == i) {
                 System.arraycopy(msgBodey, 5, locateData, 0, locateLength);
             } else {
-                if(1==i){
+                if (1 == i) {
                     //5+60+2
-                    startIndex+=67;
-                }else{
+                    startIndex += 67;
+                } else {
                     //60+2
-                    startIndex+=62;
+                    startIndex += 62;
                 }
                 System.arraycopy(msgBodey, startIndex, locateData, 0, locateLength);
             }
-
-            LOGGER.info("位置信息{}：{},", i, HexStringUtils.toHexString(locateData));
-            LOGGER.info("位置信息{}：startIndex:{},", i, startIndex);
             //解析数据信息
             PackageData packageDataRet = new PackageData();
             packageDataRet.setChannel(packageData.getChannel());
@@ -211,20 +213,17 @@ public class MsgDecoderUtils {
             packageDataRet.setMsgHeader(msgHeader);
             packageDataRet.setMsgBodyBytes(locateData);
             ret = new LocationInfoUploadMsg(packageDataRet);
-            LOGGER.info("LocationInfoUploadMsg {}：{}", i, ret);
             //2.解析参数
             // 2.1  byte[0-3] 报警标志(DWORD(32))
             int state = ByteUtils.parseIntFromBytes(locateData, 0, 4);
             //解析报警状态
             ret.setWarningFlagField(state);
             configAlarmState(ret, state);
-
             // 2.2. byte[4-7] 状态(DWORD(32))
             int statusState = ByteUtils.parseIntFromBytes(locateData, 4, 4);
             ret.setStatusField(statusState);
             //解析状态
             configStatus(ret, statusState);
-
             // 2.3. byte[8-11] 纬度(DWORD(32)) 以度为单位的纬度值乘以10^6，精确到百万分之一度
             ret.setLatitude(parseIntToLocateData(ByteUtils.parseIntFromBytes(locateData, 8, 4)));
             // 2.4. byte[12-15] 经度(DWORD(32)) 以度为单位的经度值乘以10^6，精确到百万分之一度
@@ -242,10 +241,9 @@ public class MsgDecoderUtils {
             ret.setGpsTime("20" + time);
             ret.setUploadTime(MyDateUtils.longToString(System.currentTimeMillis(), "YYYYMMddHHmmss"));
             //解析附加消息
-          //  configLoadAddMsg(ret, locateData);
+            configLoadAddMsg(ret, locateData);
+            LOGGER.info("批量信息体{}：{}",i, ret);
             retLists.add(ret);
-
-
         }
         if (ValidateUtil.isValidListObject(retLists)) {
             return retLists;
@@ -552,8 +550,12 @@ public class MsgDecoderUtils {
         return ret;
     }
 
-
-    //将纬度经度的整形值转换为double
+    /**
+     * 将纬度经度的整形值转换为double
+     *
+     * @param d 定位数据
+     * @return double
+     */
     private static double parseIntToLocateData(int d) {
         BigDecimal d1 = new BigDecimal(Integer.toString(d));
         BigDecimal d2 = new BigDecimal(Integer.toString(1000000));
@@ -585,8 +587,8 @@ public class MsgDecoderUtils {
     /**
      * 解析查询终端属性应答信息
      *
-     * @param packageData
-     * @return
+     * @param packageData 消息
+     * @return TerminalPropertiesReplyMsg
      */
     public static TerminalPropertiesReplyMsg toTerminalPropertiesReplyMsg(PackageData packageData) {
         //1.从终端数据包中截取消息体

@@ -24,8 +24,6 @@ public class TPMSConsts {
     // 查询终端参数应答
     public static final int msg_id_terminal_param_query_resp = 0x0104;
 
-    // 平台通用应答
-    public static final int cmd_common_resp = 0x8001;
     // 终端注册应答
     public static final int cmd_terminal_register_resp = 0x8100;
     // 设置终端参数

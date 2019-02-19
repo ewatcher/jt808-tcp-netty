@@ -82,7 +82,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         final MsgHeader header = packageData.getMsgHeader();
         //根据数据包标识调用分发业务逻辑
         switch (header.getMsgId()) {
-            //1.终端通用应答
+            //1.终端【通用应答】
             case TPMSConsts.TERMINAL_COMMON_RESPONE: {
                 terminalCommonRespone(packageData, header);
                 break;
@@ -220,7 +220,8 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
                 LOGGER.info("<<<<<<[存储多媒体数据检索应答]:" + header.getMsgId());
                 break;
             }
-            //23
+
+            //24
             default: {
                 LOGGER.error(">>>>>>[未知消息类型],phone={},msgId={},package={}", header.getTerminalPhone(), header.getMsgId(),
                         packageData);
@@ -408,7 +409,7 @@ public class TCPServerHandler extends ChannelInboundHandlerAdapter { // (1)
         try {
             List<LocationInfoUploadMsg> locationInfoBatUploadMsgs = MsgDecoderUtils.toLocationInfoBatUploadMsg(packageData);
             if(ValidateUtil.isValidListObject(locationInfoBatUploadMsgs)){
-                this.msgProcessService.processLocationInfoUploadMsg(locationInfoBatUploadMsgs.get(0));
+                this.msgProcessService.processLocationInfoBatUploadMsg(locationInfoBatUploadMsgs);
             }
             LOGGER.info("<<<<<[批量上传位置信息],phone={},flowid={}", header.getTerminalPhone(), header.getFlowId());
         } catch (Exception e) {

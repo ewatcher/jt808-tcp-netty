@@ -95,7 +95,7 @@ public class MsgEncoderUtils {
         // 消息头
         int msgBodyProps = JT808ProtocolUtils.generateMsgBodyProps(msgBody.length, 0b000, false, 0);
         byte[] msgHeader = JT808ProtocolUtils.generateMsgHeader(req.getMsgHeader().getTerminalPhone(),
-                TPMSConsts.cmd_common_resp, msgBody, msgBodyProps, flowId);
+                TPMSConsts.CMD_PLAT_COMMON_RESPONE, msgBody, msgBodyProps, flowId);
         byte[] headerAndBody = BitUtils.concatAll(msgHeader, msgBody);
         // 校验码
         int checkSum = BitUtils.getCheckSum4JT808(headerAndBody, 0, headerAndBody.length - 1);

@@ -4,6 +4,7 @@ import com.tuocheng.jt808.common.TPMSConsts;
 import com.tuocheng.jt808.common.TerminalParamConfigConsts;
 import com.tuocheng.jt808.util.HexStringUtils;
 import com.tuocheng.jt808.util.MsgEncoderUtils;
+import com.tuocheng.jt808.util.ValidateUtil;
 import com.tuocheng.jt808.vo.MsgHeader;
 import com.tuocheng.jt808.vo.req.LocationInfoUploadMsg;
 import com.tuocheng.jt808.vo.req.TerminalPropertiesReplyMsg;
@@ -19,6 +20,8 @@ import com.tuocheng.jt808.vo.req.TerminalAuthenticationMsg;
 import com.tuocheng.jt808.vo.req.TerminalRegisterMsg;
 import com.tuocheng.jt808.vo.resp.ServerCommonRespMsgBody;
 import com.tuocheng.jt808.vo.resp.TerminalRegisterMsgRespBody;
+
+import java.util.List;
 
 /**
  * 1) 808部标终端【注册】业务处理方法 <br/>
@@ -151,16 +154,18 @@ public class TerminalMsgProcessService extends BaseMsgProcessService {
         //TODO
     }
 
+
     /**
      * 6) 808部标终端【位置信息汇报】业务处理方法 <br/>
      *
-     * @param req
+     * @param retLists
      * @throws Exception
      */
-    public void processLocationInfoBatUploadMsg(LocationInfoUploadMsg req) throws Exception {
-        LOGGER.debug("批量位置 信息:{}", JSON.toJSONString(req, true));
+    public void processLocationInfoBatUploadMsg(List<LocationInfoUploadMsg> retLists) throws Exception {
         //1.对终端进行应答--平台通用答应
-        commonReplyToTerminal(req);
+        if(ValidateUtil.isValidListObject(retLists)){
+            commonReplyToTerminal(retLists.get(0));
+        }
         //2.数据分析入库
         //TODO
     }
